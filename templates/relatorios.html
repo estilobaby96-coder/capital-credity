@@ -1,0 +1,397 @@
+{% extends "app.html" %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
+    <h1 class="text-2xl font-bold">Relatórios & Controle Mensal</h1>
+</div>
+
+<!-- Filters area -->
+<div class="bg-[#242424] p-4 rounded-lg shadow mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Left Side: Tipo e Mês/Ano -->
+        <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-gray-400 text-sm w-32">Tipo de Relatório:</span>
+                <select id="tipoRelatorio" class="bg-[#333] text-white border border-gray-600 rounded px-3 py-2 flex-grow" onchange="onTipoRelatorioChange()">
+                    <option value="Controle Mensal">Controle Mensal (Previsto vs. Realizado)</option>
+                    <option value="Extrato do Cliente">Extrato do Cliente</option>
+                    <option value="Inadimplência">Inadimplência</option>
+                    <option value="Fluxo de Caixa">Fluxo de Caixa</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-gray-400 text-sm w-32">Mês/Ano:</span>
+                <select id="mesSelect" class="bg-[#333] text-white border border-gray-600 rounded px-3 py-2 flex-grow">
+                    <option value="1">Janeiro</option>
+                    <option value="2">Fevereiro</option>
+                    <option value="3">Março</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Maio</option>
+                    <option value="6">Junho</option>
+                    <option value="7">Julho</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Setembro</option>
+                    <option value="10">Outubro</option>
+                    <option value="11">Novembro</option>
+                    <option value="12">Dezembro</option>
+                </select>
+                <input type="number" id="anoSelect" class="bg-[#333] text-white border border-gray-600 rounded px-3 py-2 w-24" value="2026">
+            </div>
+        </div>
+
+        <!-- Right Side: Cliente e Datas -->
+        <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-gray-400 text-sm w-20">Cliente:</span>
+                <select id="clienteSelect" class="bg-[#333] text-white border border-gray-600 rounded px-3 py-2 flex-grow" disabled>
+                    <option value="">Selecione o Cliente</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-gray-400 text-sm w-20">Início/Fim:</span>
+                <input type="date" id="dataInicio" class="bg-[#333] text-white border border-gray-600 rounded px-2 py-2 flex-grow" disabled>
+                <input type="date" id="dataFim" class="bg-[#333] text-white border border-gray-600 rounded px-2 py-2 flex-grow" disabled>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 flex justify-end">
+        <button onclick="carregarRelatorio()" class="bg-brand-green hover:bg-green-600 text-white font-bold px-6 py-2 rounded">
+            Gerar Relatório
+        </button>
+    </div>
+</div>
+
+<!-- KPIs Mensal (Só visível no Controle Mensal) -->
+<div id="kpisContainer" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+    <div class="bg-[#242424] p-4 rounded border border-blue-500 shadow flex flex-col items-center text-center">
+        <h3 class="text-gray-400 text-sm"><i class="fa-solid fa-thumbtack text-xs mr-1"></i>Previsto no Mês</h3>
+        <p class="text-xl font-bold mt-1 text-blue-400" id="kpiPrevisto">R$ 0,00</p>
+    </div>
+    <div class="bg-[#242424] p-4 rounded border border-green-500 shadow flex flex-col items-center text-center">
+        <h3 class="text-gray-400 text-sm"><i class="fa-solid fa-sack-dollar text-xs mr-1"></i>Realizado no Mês</h3>
+        <p class="text-xl font-bold mt-1 text-green-400" id="kpiRealizado">R$ 0,00</p>
+    </div>
+    <div class="bg-[#242424] p-4 rounded border border-purple-500 shadow flex flex-col items-center text-center">
+        <h3 class="text-gray-400 text-sm"><i class="fa-solid fa-chart-line text-xs mr-1"></i>Eficiência Cobrança</h3>
+        <p class="text-xl font-bold mt-1 text-purple-400" id="kpiEficiencia">0.0%</p>
+    </div>
+    <div class="bg-[#242424] p-4 rounded border border-red-500 shadow flex flex-col items-center text-center">
+        <h3 class="text-gray-400 text-sm"><i class="fa-solid fa-triangle-exclamation text-xs mr-1"></i>Inadimplência Mês</h3>
+        <p class="text-xl font-bold mt-1 text-red-500" id="kpiInad">R$ 0,00</p>
+    </div>
+    <div class="bg-[#242424] p-4 rounded border border-orange-500 shadow flex flex-col items-center text-center">
+        <h3 class="text-gray-400 text-sm"><i class="fa-solid fa-coins text-xs mr-1"></i>Lucro Bruto Juros/Taxas</h3>
+        <p class="text-xl font-bold mt-1 text-orange-400" id="kpiLucro">R$ 0,00</p>
+    </div>
+</div>
+
+<!-- Tabela para Controle Mensal / Inadimplência / Fluxo -->
+<div id="tableContainer" class="bg-white rounded-lg shadow overflow-x-auto text-black p-2 min-h-[300px]">
+    <table class="w-full text-left text-sm" id="relatorioTable">
+        <thead class="bg-gray-100 font-bold border-b border-gray-300" id="tableHead">
+            <!-- Table Head Dinamico -->
+        </thead>
+        <tbody id="tabelaRelatorio" class="divide-y divide-gray-200">
+            <!-- Dados -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Text Area para Extrato do Cliente -->
+<div id="textContainer" class="hidden bg-white rounded-lg shadow p-4 min-h-[300px]">
+    <textarea id="textRelatorio" class="w-full h-96 bg-white text-black font-mono text-sm border-none focus:ring-0 resize-none" readonly></textarea>
+</div>
+
+<script>
+    const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+    
+    // Init dates
+    document.getElementById('mesSelect').value = new Date().getMonth() + 1;
+    document.getElementById('anoSelect').value = new Date().getFullYear();
+    
+    let dtIni = new Date();
+    dtIni.setDate(1);
+    let dtFim = new Date(dtIni.getFullYear(), dtIni.getMonth() + 1, 0);
+    
+    document.getElementById('dataInicio').value = dtIni.toISOString().split('T')[0];
+    document.getElementById('dataFim').value = dtFim.toISOString().split('T')[0];
+
+    async function carregarClientes() {
+        try {
+            const clientes = await fetchAPI('/clientes/');
+            const sel = document.getElementById('clienteSelect');
+            clientes.forEach(c => {
+                let opt = document.createElement('option');
+                opt.value = c.id;
+                opt.innerText = `${c.id} - ${c.nome}`;
+                sel.appendChild(opt);
+            });
+        } catch(e) {
+            console.error("Erro ao carregar clientes", e);
+        }
+    }
+
+    function onTipoRelatorioChange() {
+        const tipo = document.getElementById('tipoRelatorio').value;
+        const mesSelect = document.getElementById('mesSelect');
+        const anoSelect = document.getElementById('anoSelect');
+        const clienteSelect = document.getElementById('clienteSelect');
+        const dataInicio = document.getElementById('dataInicio');
+        const dataFim = document.getElementById('dataFim');
+        const kpisContainer = document.getElementById('kpisContainer');
+        const tableContainer = document.getElementById('tableContainer');
+        const textContainer = document.getElementById('textContainer');
+
+        // Reset
+        mesSelect.disabled = true;
+        anoSelect.disabled = true;
+        clienteSelect.disabled = true;
+        dataInicio.disabled = true;
+        dataFim.disabled = true;
+        kpisContainer.classList.add('hidden');
+        tableContainer.classList.remove('hidden');
+        textContainer.classList.add('hidden');
+
+        if(tipo === 'Controle Mensal') {
+            mesSelect.disabled = false;
+            anoSelect.disabled = false;
+            kpisContainer.classList.remove('hidden');
+            kpisContainer.classList.add('grid'); // restore grid layout
+            tableContainer.classList.remove('hidden');
+        } else if (tipo === 'Extrato do Cliente') {
+            clienteSelect.disabled = false;
+            textContainer.classList.remove('hidden');
+        } else if (tipo === 'Inadimplência') {
+            tableContainer.classList.remove('hidden');
+        } else if (tipo === 'Fluxo de Caixa') {
+            dataInicio.disabled = false;
+            dataFim.disabled = false;
+            tableContainer.classList.remove('hidden');
+        }
+    }
+
+    async function carregarRelatorio() {
+        const tipo = document.getElementById('tipoRelatorio').value;
+        
+        if(tipo === 'Controle Mensal') {
+            await loadControleMensal();
+        } else if (tipo === 'Extrato do Cliente') {
+            await loadExtrato();
+        } else if (tipo === 'Inadimplência') {
+            await loadInadimplencia();
+        } else if (tipo === 'Fluxo de Caixa') {
+            await loadFluxoCaixa();
+        }
+    }
+
+    async function loadControleMensal() {
+        const mes = document.getElementById('mesSelect').value;
+        const ano = document.getElementById('anoSelect').value;
+        const tbody = document.getElementById('tabelaRelatorio');
+        const thead = document.getElementById('tableHead');
+        
+        thead.innerHTML = `
+            <tr>
+                <th class="px-4 py-2">Cliente</th>
+                <th class="px-4 py-2 text-center">Contrato</th>
+                <th class="px-4 py-2 text-center">Nº Parc.</th>
+                <th class="px-4 py-2 text-center">Vencimento</th>
+                <th class="px-4 py-2 text-right">Previsto</th>
+                <th class="px-4 py-2 text-center">Dt. Pagto</th>
+                <th class="px-4 py-2 text-right">Pago</th>
+                <th class="px-4 py-2 text-center">Status</th>
+            </tr>
+        `;
+        tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-4 text-center">Carregando...</td></tr>';
+        
+        try {
+            const data = await fetchAPI(`/relatorios/mensal?mes=${mes}&ano=${ano}`);
+            
+            document.getElementById('kpiPrevisto').innerText = formatter.format(data.total_previsto);
+            document.getElementById('kpiRealizado').innerText = formatter.format(data.total_realizado);
+            document.getElementById('kpiInad').innerText = formatter.format(data.total_inadimplencia);
+            document.getElementById('kpiLucro').innerText = formatter.format(data.total_lucro_juros);
+            document.getElementById('kpiEficiencia').innerText = `${data.eficiencia_percentual}%`;
+            
+            tbody.innerHTML = '';
+            if (data.rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-4 text-center">Nenhum dado encontrado para este mês.</td></tr>';
+                return;
+            }
+            
+            data.rows.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-4 py-2">${r.cliente}</td>
+                    <td class="px-4 py-2 text-center">${r.numero_contrato}</td>
+                    <td class="px-4 py-2 text-center">${r.parcela_num}</td>
+                    <td class="px-4 py-2 text-center">${r.vencimento}</td>
+                    <td class="px-4 py-2 text-right">${formatter.format(r.valor_previsto)}</td>
+                    <td class="px-4 py-2 text-center">${r.data_pagamento}</td>
+                    <td class="px-4 py-2 font-bold text-right">${formatter.format(r.valor_pago)}</td>
+                    <td class="px-4 py-2 font-semibold text-center ${r.status_rotulo.includes('ATRASO') ? 'text-red-600' : (r.status_rotulo.includes('PAGO') ? 'text-green-600' : 'text-yellow-600')}">${r.status_rotulo}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-4 text-center text-red-500">Erro ao carregar relatório.</td></tr>';
+        }
+    }
+
+    async function loadInadimplencia() {
+        const tbody = document.getElementById('tabelaRelatorio');
+        const thead = document.getElementById('tableHead');
+        
+        thead.innerHTML = `
+            <tr>
+                <th class="px-4 py-2">Cliente</th>
+                <th class="px-4 py-2">CPF</th>
+                <th class="px-4 py-2 text-center">Contrato</th>
+                <th class="px-4 py-2 text-center">Parc.</th>
+                <th class="px-4 py-2 text-center">Vencimento</th>
+                <th class="px-4 py-2 text-right">Valor</th>
+                <th class="px-4 py-2 text-center">Dias Atraso</th>
+            </tr>
+        `;
+        tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center">Carregando...</td></tr>';
+        
+        try {
+            const data = await fetchAPI(`/relatorios/inadimplencia`);
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center">Nenhum cliente inadimplente.</td></tr>';
+                return;
+            }
+            
+            data.forEach(r => {
+                let [y, m, d] = r.vencimento.split('-');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-4 py-2 font-semibold text-red-700">${r.cliente}</td>
+                    <td class="px-4 py-2">${r.cpf}</td>
+                    <td class="px-4 py-2 text-center">${r.numero_contrato}</td>
+                    <td class="px-4 py-2 text-center">${r.parcela_num}</td>
+                    <td class="px-4 py-2 text-center text-red-600">${d}/${m}/${y}</td>
+                    <td class="px-4 py-2 text-right font-bold">${formatter.format(r.valor)}</td>
+                    <td class="px-4 py-2 text-center font-bold text-red-600">${r.dias_atraso}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center text-red-500">Erro ao carregar inadimplência.</td></tr>';
+        }
+    }
+
+    async function loadFluxoCaixa() {
+        const tbody = document.getElementById('tabelaRelatorio');
+        const thead = document.getElementById('tableHead');
+        const d_ini = document.getElementById('dataInicio').value;
+        const d_fim = document.getElementById('dataFim').value;
+        
+        if(!d_ini || !d_fim) {
+            alert("Selecione a data de Início e Fim!");
+            return;
+        }
+
+        thead.innerHTML = `
+            <tr>
+                <th class="px-4 py-2 text-center">Data</th>
+                <th class="px-4 py-2 text-center">Tipo</th>
+                <th class="px-4 py-2">Forma Pgto</th>
+                <th class="px-4 py-2">Descrição</th>
+                <th class="px-4 py-2 text-right">Valor</th>
+                <th class="px-4 py-2 text-right">Saldo Acum.</th>
+            </tr>
+        `;
+        tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-4 text-center">Carregando...</td></tr>';
+        
+        try {
+            const data = await fetchAPI(`/relatorios/fluxo_caixa?data_inicio=${d_ini}&data_fim=${d_fim}`);
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-4 text-center">Nenhum fluxo no período.</td></tr>';
+                return;
+            }
+            
+            data.forEach(r => {
+                let [dt, time] = r.data.split('T');
+                let [y, m, d] = dt.split('-');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-4 py-2 text-center">${d}/${m}/${y} ${time.substring(0,5)}</td>
+                    <td class="px-4 py-2 text-center font-bold ${r.tipo === 'ENTRADA' ? 'text-green-600' : 'text-red-600'}">${r.tipo}</td>
+                    <td class="px-4 py-2">${r.forma_pagamento}</td>
+                    <td class="px-4 py-2">${r.descricao}</td>
+                    <td class="px-4 py-2 text-right font-bold ${r.tipo === 'ENTRADA' ? 'text-green-600' : 'text-red-600'}">${formatter.format(r.valor)}</td>
+                    <td class="px-4 py-2 text-right font-bold text-blue-700">${formatter.format(r.saldo_acumulado)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-4 text-center text-red-500">Erro ao carregar fluxo de caixa.</td></tr>';
+        }
+    }
+
+    async function loadExtrato() {
+        const cliente_id = document.getElementById('clienteSelect').value;
+        if(!cliente_id) {
+            alert("Por favor, selecione um cliente.");
+            return;
+        }
+
+        const textArea = document.getElementById('textRelatorio');
+        textArea.value = "Gerando Extrato do Cliente...";
+
+        try {
+            const data = await fetchAPI(`/relatorios/extrato/${cliente_id}`);
+            let text = `-------------------------------------------------\n`;
+            text += ` EXTRATO DO CLIENTE \n`;
+            text += `-------------------------------------------------\n\n`;
+            text += ` NOME    : ${data.cliente.nome}\n`;
+            text += ` CPF     : ${data.cliente.cpf}\n`;
+            text += ` TELEFONE: ${data.cliente.telefone}\n\n`;
+            
+            if (data.emprestimos.length === 0) {
+                text += ` Nenhum empréstimo registrado.\n`;
+            } else {
+                data.emprestimos.forEach(emp => {
+                    text += ` >> CONTRATO Nº: ${emp.numero_contrato} - Status: [${emp.status}]\n`;
+                    text += `    Valor Total Liberado: ${formatter.format(emp.valor)}\n\n`;
+                    
+                    if (emp.parcelas.length === 0) {
+                        text += `    Nenhuma parcela associada.\n\n`;
+                    } else {
+                        text += `    [PARCELAS]\n`;
+                        emp.parcelas.forEach(p => {
+                            let dt_venc = "—";
+                            if(p.vencimento) {
+                                let [y, m, d] = p.vencimento.split('-');
+                                dt_venc = `${d}/${m}/${y}`;
+                            }
+                            text += `      Parc ${String(p.numero).padStart(2, '0')} | Venc: ${dt_venc} | Val: ${formatter.format(p.valor).padStart(12)} | ${p.status}\n`;
+                        });
+                        text += `\n`;
+                    }
+                });
+            }
+            
+            textArea.value = text;
+
+        } catch (e) {
+            textArea.value = "Erro ao carregar o extrato do cliente.";
+            console.error(e);
+        }
+    }
+
+    // Inicialização
+    window.onload = async () => {
+        onTipoRelatorioChange();
+        await carregarClientes();
+        await carregarRelatorio();
+    };
+</script>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "app.html" %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
+    <h1 class="text-2xl font-bold">Gestão de Empréstimos</h1>
+    <button onclick="openModal()" class="btn-green font-bold py-2 px-4 rounded shadow">
+        + Novo Empréstimo
+    </button>
+</div>
+
+<div class="bg-[#242424] rounded-lg overflow-hidden shadow">
+    <table class="w-full table-dark text-sm">
+        <thead>
+            <tr>
+                <th>Nº Contrato</th>
+                <th>Cliente ID</th>
+                <th>Data</th>
+                <th>Valor Solicitado</th>
+                <th>Valor Total</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="emprestimosTableBody">
+            <!-- Populado via JS -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Novo Empréstimo -->
+<div id="modalEmprestimo" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
+    <div class="bg-[#2a2a2a] p-6 rounded-lg shadow-xl w-full max-w-lg border border-gray-600">
+        <h2 class="text-xl font-bold mb-4">Novo Empréstimo</h2>
+        
+        <form id="formEmprestimo" onsubmit="saveEmprestimo(event)">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="col-span-2">
+                    <label class="block text-sm mb-1 text-gray-300">Cliente</label>
+                    <select id="e_cliente" required class="input-dark">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1 text-gray-300">Valor (R$)</label>
+                    <input type="number" id="e_valor" step="0.01" required class="input-dark">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1 text-gray-300">Taxa Juros (%)</label>
+                    <input type="number" id="e_taxa" step="0.1" required class="input-dark">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1 text-gray-300">Nº Parcelas</label>
+                    <input type="number" id="e_parcelas" min="1" max="120" required class="input-dark">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1 text-gray-300">Data Base</label>
+                    <input type="date" id="e_data" required class="input-dark">
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="closeModal()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded transition">Cancelar</button>
+                <button type="submit" id="btnSalvarE" class="btn-green px-4 py-2 rounded shadow font-bold">Criar Contrato</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        document.getElementById('modalEmprestimo').classList.remove('hidden');
+        document.getElementById('modalEmprestimo').classList.add('flex');
+        
+        // Puxa lista de clientes para o select
+        fetchAPI('/clientes/').then(clientes => {
+            const select = document.getElementById('e_cliente');
+            select.innerHTML = '<option value="">Selecione...</option>';
+            clientes.forEach(c => {
+                select.innerHTML += `<option value="${c.id}">${c.nome} (CPF: ${c.cpf})</option>`;
+            });
+        });
+        
+        document.getElementById('e_data').valueAsDate = new Date();
+    }
+    
+    function closeModal() {
+        document.getElementById('modalEmprestimo').classList.add('hidden');
+        document.getElementById('modalEmprestimo').classList.remove('flex');
+        document.getElementById('formEmprestimo').reset();
+    }
+
+    async function loadEmprestimos() {
+        try {
+            const data = await fetchAPI('/emprestimos/');
+            const tbody = document.getElementById('emprestimosTableBody');
+            tbody.innerHTML = '';
+            
+            const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+            
+            data.forEach(e => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${e.numero_contrato}</td>
+                    <td>${e.cliente_id}</td>
+                    <td>${new Date(e.data_emprestimo).toLocaleDateString('pt-BR')}</td>
+                    <td>${formatter.format(e.valor_principal)}</td>
+                    <td>${formatter.format(e.valor_total)}</td>
+                    <td><span class="${e.status === 'ATIVO' ? 'text-green-500' : 'text-gray-500'} font-bold">${e.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function saveEmprestimo(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnSalvarE');
+        btn.disabled = true;
+        btn.innerText = "Criando...";
+        
+        const payload = {
+            cliente_id: parseInt(document.getElementById('e_cliente').value),
+            valor_principal: parseFloat(document.getElementById('e_valor').value),
+            taxa_juros_mensal: parseFloat(document.getElementById('e_taxa').value),
+            numero_parcelas: parseInt(document.getElementById('e_parcelas').value),
+            data_emprestimo: document.getElementById('e_data').value
+        };
+        
+        try {
+            await fetchAPI('/emprestimos/', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            Swal.fire('Sucesso', 'Empréstimo criado com sucesso!', 'success');
+            closeModal();
+            loadEmprestimos();
+        } catch (error) {
+            Swal.fire('Erro', error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Criar Contrato";
+        }
+    }
+
+    window.onload = loadEmprestimos;
+</script>
+{% endblock %}

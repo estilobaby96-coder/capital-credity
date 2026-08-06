@@ -1,0 +1,21 @@
+# config/settings.py
+
+# Dimensões da janela principal
+WINDOW_WIDTH = 1200
+WINDOW_HEIGHT = 700
+
+# Paleta de Cores
+COLOR_BACKGROUND = "#1E1E1E" # Grafite escuro
+COLOR_SURFACE = "#252526"    # Grafite médio
+COLOR_PRIMARY = "#00C853"    # Verde moderno
+COLOR_PRIMARY_HOVER = "#00E676"
+COLOR_TEXT_PRIMARY = "#FFFFFF"
+COLOR_TEXT_SECONDARY = "#AAAAAA"
+COLOR_DANGER = "#FF5252"
+
+# Tipografia
+FONT_FAMILY = "Roboto"
+FONT_SIZE_H1 = 24
+FONT_SIZE_H2 = 18
+FONT_SIZE_BODY = 14
+FONT_SIZE_SMALL = 12

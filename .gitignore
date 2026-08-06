@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.env
+
+# Database local
+*.db
+database/*.db
+
+# Build/Dist
+dist/
+build/
+*.spec
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+.agents/
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store

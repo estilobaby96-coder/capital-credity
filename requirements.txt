@@ -1,0 +1,15 @@
+customtkinter>=5.2.2
+SQLAlchemy>=2.0.0
+alembic>=1.13.0
+Pillow>=10.2.0
+reportlab>=4.1.0
+openpyxl>=3.1.2
+matplotlib>=3.8.3
+bcrypt>=4.1.2
+python-dotenv>=1.0.1
+pyinstaller>=6.4.0
+p y t h o n - d a t e u t i l > = 2 . 8 . 2  
+psycopg2-binary>=2.9.9
+fastapi>=0.109.0
+uvicorn>=0.27.0
+jinja2>=3.1.3  

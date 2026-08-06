@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block layout %}
+<div class="flex items-center justify-center w-full h-full" style="background-color: #1E1E1E !important; position: relative; z-index: 10;">
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #1E1E1E; z-index: -1;"></div>
+    <div class="p-10 rounded-2xl shadow-xl w-full max-w-md border border-gray-700" style="background-color: #252526; z-index: 11;">
+        <div class="flex justify-center mb-8">
+            <img src="/assets/logo/logo.png" alt="Capital Credity" class="w-48" onerror="this.style.display='none'">
+        </div>
+        
+        <h2 class="text-xl text-center text-gray-300 mb-6">Gestor Financeiro de Empréstimos</h2>
+        
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="mb-4">
+                <label class="block text-sm mb-2 text-gray-300">Usuário</label>
+                <input type="text" id="username" required class="input-dark">
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm mb-2 text-gray-300">Senha</label>
+                <input type="password" id="password" required class="input-dark">
+                
+                <div class="mt-2 flex items-center">
+                    <input type="checkbox" id="showPassword" class="mr-2" onchange="togglePassword()">
+                    <label for="showPassword" class="text-sm text-gray-400">Mostrar senha</label>
+                </div>
+            </div>
+            
+            <button type="submit" id="btnSubmit" class="w-full btn-green font-bold py-3 px-4 rounded focus:outline-none shadow-lg">
+                Entrar
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function togglePassword() {
+        const pass = document.getElementById("password");
+        pass.type = pass.type === "password" ? "text" : "password";
+    }
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const btn = document.getElementById('btnSubmit');
+
+        btn.disabled = true;
+        btn.innerHTML = 'Entrando...';
+
+        try {
+            const res = await fetch('/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, password: password })
+            });
+            
+            const data = await res.json();
+            
+            if (res.ok) {
+                localStorage.setItem('token', data.access_token);
+                window.location.href = '/';
+            } else {
+                Swal.fire('Erro', data.detail || 'Usuário ou senha inválidos', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Erro', error.message || 'Falha ao conectar com o servidor.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Entrar';
+        }
+    }
+</script>
+{% endblock %}

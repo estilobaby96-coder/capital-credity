@@ -1,0 +1,130 @@
+{% extends "app.html" %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
+    <h1 class="text-2xl font-bold">Gestão de Recebimentos</h1>
+    <button onclick="carregarPendentes()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">
+        <i class="fa-solid fa-rotate-right mr-2"></i> Atualizar
+    </button>
+</div>
+
+<div class="bg-[#242424] rounded-lg shadow overflow-hidden">
+    <table class="w-full text-left text-sm text-gray-300">
+        <thead class="bg-[#1a1a1a] text-gray-400 font-bold">
+            <tr>
+                <th class="px-4 py-3">Cliente</th>
+                <th class="px-4 py-3">Contrato</th>
+                <th class="px-4 py-3">Parcela</th>
+                <th class="px-4 py-3">Vencimento</th>
+                <th class="px-4 py-3">Valor Atualizado</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3 text-right">Ações</th>
+            </tr>
+        </thead>
+        <tbody id="tabelaPendentes" class="divide-y divide-gray-700">
+            <!-- Dados carregados via JS -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    async function carregarPendentes() {
+        const tbody = document.getElementById('tabelaPendentes');
+        tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center">Carregando...</td></tr>';
+        
+        try {
+            const parcelas = await fetchAPI('/pagamentos/pendentes');
+            tbody.innerHTML = '';
+            
+            if (parcelas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center">Nenhuma parcela pendente ou atrasada.</td></tr>';
+                return;
+            }
+            
+            const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+            
+            parcelas.forEach(p => {
+                const isAtrasada = p.status === 'ATRASADA';
+                const statusColor = isAtrasada ? 'text-red-500' : 'text-yellow-500';
+                
+                let dataFormatada = '-';
+                if(p.vencimento) {
+                    const [ano, mes, dia] = p.vencimento.split('T')[0].split('-');
+                    dataFormatada = `${dia}/${mes}/${ano}`;
+                }
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-4 py-3">${p.cliente}</td>
+                    <td class="px-4 py-3">${p.numero_contrato}</td>
+                    <td class="px-4 py-3">${p.parcela_num}</td>
+                    <td class="px-4 py-3 ${isAtrasada ? 'font-bold text-red-500' : ''}">${dataFormatada}</td>
+                    <td class="px-4 py-3 font-bold">${formatter.format(p.valor_atualizado)}</td>
+                    <td class="px-4 py-3 font-bold ${statusColor}">${p.status}</td>
+                    <td class="px-4 py-3 text-right">
+                        <button onclick="baixarParcela(${p.id}, ${p.valor_atualizado})" class="bg-brand-green hover:bg-green-600 text-white px-3 py-1 rounded text-xs transition">
+                            <i class="fa-solid fa-check mr-1"></i> Baixar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center text-red-500">Erro ao carregar dados.</td></tr>';
+            console.error(e);
+        }
+    }
+
+    async function baixarParcela(id, valor) {
+        const { value: formValues } = await Swal.fire({
+            title: 'Baixar Parcela',
+            html: `
+                <div class="mb-4">
+                    <label class="block text-sm font-bold mb-2">Valor Pago (R$)</label>
+                    <input id="swal-valor" class="swal2-input !w-full !m-0 bg-[#2a2a2a] text-white border border-gray-600" type="number" step="0.01" value="${valor.toFixed(2)}">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-bold mb-2">Método de Pagamento</label>
+                    <select id="swal-metodo" class="swal2-select !w-full !m-0 bg-[#2a2a2a] text-white border border-gray-600">
+                        <option value="PIX">PIX</option>
+                        <option value="DINHEIRO">Dinheiro</option>
+                        <option value="TRANSFERENCIA">Transferência</option>
+                    </select>
+                </div>
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar Pagamento',
+            cancelButtonText: 'Cancelar',
+            preConfirm: () => {
+                return {
+                    valor: document.getElementById('swal-valor').value,
+                    metodo: document.getElementById('swal-metodo').value
+                }
+            }
+        });
+
+        if (formValues) {
+            try {
+                await fetchAPI('/pagamentos/baixa', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        parcela_id: id,
+                        valor_pago: parseFloat(formValues.valor),
+                        metodo_pagamento: formValues.metodo,
+                        observacao: "Baixado pela Web",
+                        taxa_servico: 0.0
+                    })
+                });
+                
+                Swal.fire('Sucesso!', 'Parcela baixada com sucesso.', 'success');
+                carregarPendentes();
+            } catch(e) {
+                Swal.fire('Erro', e.message || 'Falha ao baixar parcela.', 'error');
+            }
+        }
+    }
+
+    window.onload = carregarPendentes;
+</script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block layout %}
+<div class="flex h-full w-full" style="position: relative; z-index: 10;">
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #1E1E1E; z-index: -1;"></div>
+    <!-- Sidebar -->
+    <div class="sidebar w-64 h-full flex flex-col items-center py-6" style="background-color: #252526; z-index: 11;">
+        <img src="/assets/logo/logo.png" alt="Capital Credity" class="w-48 mb-8" onerror="this.src=''">
+        
+        <div class="w-full px-4 flex flex-col gap-3 flex-grow">
+            <a href="/" class="btn-green rounded px-4 py-2 text-center w-full block">Dashboard</a>
+            <a href="/clientes" class="btn-green rounded px-4 py-2 text-center w-full block">Clientes</a>
+            <a href="/emprestimos" class="btn-green rounded px-4 py-2 text-center w-full block">Empréstimos</a>
+            <a href="/recebimentos" class="btn-green rounded px-4 py-2 text-center w-full block">Recebimentos</a>
+            <a href="/relatorios" class="btn-green rounded px-4 py-2 text-center w-full block">Relatórios</a>
+        </div>
+
+        <div class="w-full px-4 mt-auto">
+            <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white rounded px-4 py-2 w-full text-center transition">
+                Sair do Sistema
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-grow h-full p-8 overflow-y-auto" style="background-color: #1E1E1E; z-index: 11;">
+        {% block content %}{% endblock %}
+    </div>
+</div>
+{% endblock %}
