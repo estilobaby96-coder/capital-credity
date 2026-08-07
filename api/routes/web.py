@@ -33,3 +33,7 @@ def recebimentos_page(request: Request):
 @router.get("/relatorios", response_class=HTMLResponse)
 def relatorios_page(request: Request):
     return templates.TemplateResponse(request, "relatorios.html")
+
+@router.get("/politica", response_class=HTMLResponse)
+def politica_page(request: Request):
+    return templates.TemplateResponse(request, "politica.html")
