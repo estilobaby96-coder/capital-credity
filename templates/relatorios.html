@@ -89,7 +89,7 @@
 
 <!-- Tabela para Controle Mensal / Inadimplência / Fluxo -->
 <div id="tableContainer" class="card rounded-lg shadow overflow-x-auto p-2 min-h-[300px]">
-    <table class="w-full text-left text-sm" id="relatorioTable">
+    <table class="w-full text-center text-sm" id="relatorioTable">
         <thead class="bg-gray-100 dark:bg-gray-800 font-bold border-b border-gray-300 dark:border-gray-600" id="tableHead">
             <!-- Table Head Dinamico -->
         </thead>
@@ -194,13 +194,13 @@
         
         thead.innerHTML = `
             <tr>
-                <th class="px-4 py-2">Cliente</th>
+                <th class="px-4 py-2 text-center">Cliente</th>
                 <th class="px-4 py-2 text-center">Contrato</th>
                 <th class="px-4 py-2 text-center">Nº Parc.</th>
                 <th class="px-4 py-2 text-center">Vencimento</th>
-                <th class="px-4 py-2 text-right">Previsto</th>
+                <th class="px-4 py-2 text-center">Previsto</th>
                 <th class="px-4 py-2 text-center">Dt. Pagto</th>
-                <th class="px-4 py-2 text-right">Pago</th>
+                <th class="px-4 py-2 text-center">Pago</th>
                 <th class="px-4 py-2 text-center">Status</th>
             </tr>
         `;
@@ -224,13 +224,13 @@
             data.rows.forEach(r => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="px-4 py-2">${r.cliente}</td>
+                    <td class="px-4 py-2 text-center">${r.cliente}</td>
                     <td class="px-4 py-2 text-center">${r.numero_contrato}</td>
                     <td class="px-4 py-2 text-center">${r.parcela_num}</td>
                     <td class="px-4 py-2 text-center">${r.vencimento}</td>
-                    <td class="px-4 py-2 text-right">${formatter.format(r.valor_previsto)}</td>
+                    <td class="px-4 py-2 text-center">${formatter.format(r.valor_previsto)}</td>
                     <td class="px-4 py-2 text-center">${r.data_pagamento}</td>
-                    <td class="px-4 py-2 font-bold text-right">${formatter.format(r.valor_pago)}</td>
+                    <td class="px-4 py-2 font-bold text-center">${formatter.format(r.valor_pago)}</td>
                     <td class="px-4 py-2 font-semibold text-center ${r.status_rotulo.includes('ATRASO') ? 'text-red-600' : (r.status_rotulo.includes('PAGO') ? 'text-green-600' : 'text-yellow-600')}">${r.status_rotulo}</td>
                 `;
                 tbody.appendChild(tr);
@@ -246,12 +246,12 @@
         
         thead.innerHTML = `
             <tr>
-                <th class="px-4 py-2">Cliente</th>
-                <th class="px-4 py-2">CPF</th>
+                <th class="px-4 py-2 text-center">Cliente</th>
+                <th class="px-4 py-2 text-center">CPF</th>
                 <th class="px-4 py-2 text-center">Contrato</th>
                 <th class="px-4 py-2 text-center">Parc.</th>
                 <th class="px-4 py-2 text-center">Vencimento</th>
-                <th class="px-4 py-2 text-right">Valor</th>
+                <th class="px-4 py-2 text-center">Valor</th>
                 <th class="px-4 py-2 text-center">Dias Atraso</th>
             </tr>
         `;
@@ -270,12 +270,12 @@
                 let [y, m, d] = r.vencimento.split('-');
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="px-4 py-2 font-semibold text-red-700">${r.cliente}</td>
-                    <td class="px-4 py-2">${r.cpf}</td>
+                    <td class="px-4 py-2 text-center font-semibold text-red-700">${r.cliente}</td>
+                    <td class="px-4 py-2 text-center">${r.cpf}</td>
                     <td class="px-4 py-2 text-center">${r.numero_contrato}</td>
                     <td class="px-4 py-2 text-center">${r.parcela_num}</td>
                     <td class="px-4 py-2 text-center text-red-600">${d}/${m}/${y}</td>
-                    <td class="px-4 py-2 text-right font-bold">${formatter.format(r.valor)}</td>
+                    <td class="px-4 py-2 text-center font-bold">${formatter.format(r.valor)}</td>
                     <td class="px-4 py-2 text-center font-bold text-red-600">${r.dias_atraso}</td>
                 `;
                 tbody.appendChild(tr);
@@ -300,10 +300,10 @@
             <tr>
                 <th class="px-4 py-2 text-center">Data</th>
                 <th class="px-4 py-2 text-center">Tipo</th>
-                <th class="px-4 py-2">Forma Pgto</th>
-                <th class="px-4 py-2">Descrição</th>
-                <th class="px-4 py-2 text-right">Valor</th>
-                <th class="px-4 py-2 text-right">Saldo Acum.</th>
+                <th class="px-4 py-2 text-center">Forma Pgto</th>
+                <th class="px-4 py-2 text-center">Descrição</th>
+                <th class="px-4 py-2 text-center">Valor</th>
+                <th class="px-4 py-2 text-center">Saldo Acum.</th>
             </tr>
         `;
         tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-4 text-center">Carregando...</td></tr>';
@@ -324,10 +324,10 @@
                 tr.innerHTML = `
                     <td class="px-4 py-2 text-center">${d}/${m}/${y} ${time.substring(0,5)}</td>
                     <td class="px-4 py-2 text-center font-bold ${r.tipo === 'ENTRADA' ? 'text-green-600' : 'text-red-600'}">${r.tipo}</td>
-                    <td class="px-4 py-2">${r.forma_pagamento}</td>
-                    <td class="px-4 py-2">${r.descricao}</td>
-                    <td class="px-4 py-2 text-right font-bold ${r.tipo === 'ENTRADA' ? 'text-green-600' : 'text-red-600'}">${formatter.format(r.valor)}</td>
-                    <td class="px-4 py-2 text-right font-bold text-blue-700">${formatter.format(r.saldo_acumulado)}</td>
+                    <td class="px-4 py-2 text-center">${r.forma_pagamento}</td>
+                    <td class="px-4 py-2 text-center">${r.descricao}</td>
+                    <td class="px-4 py-2 text-center font-bold ${r.tipo === 'ENTRADA' ? 'text-green-600' : 'text-red-600'}">${formatter.format(r.valor)}</td>
+                    <td class="px-4 py-2 text-center font-bold text-blue-700">${formatter.format(r.saldo_acumulado)}</td>
                 `;
                 tbody.appendChild(tr);
             });

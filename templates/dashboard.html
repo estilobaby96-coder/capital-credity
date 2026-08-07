@@ -53,14 +53,14 @@
 
 <h2 class="text-xl font-bold mb-4 heading-text">Próximas Parcelas a Vencer</h2>
 <div class="card rounded-lg shadow overflow-x-auto">
-    <table class="w-full text-left border-collapse table-theme">
+    <table class="w-full text-center border-collapse table-theme">
         <thead>
             <tr>
                 <th class="p-3 text-sm font-semibold">Cliente</th>
                 <th class="p-3 text-sm font-semibold text-center">Contrato</th>
                 <th class="p-3 text-sm font-semibold text-center">Parcela</th>
                 <th class="p-3 text-sm font-semibold text-center">Vencimento</th>
-                <th class="p-3 text-sm font-semibold text-right">Valor</th>
+                <th class="p-3 text-sm font-semibold text-center">Valor</th>
                 <th class="p-3 text-sm font-semibold text-center">Status</th>
             </tr>
         </thead>
@@ -116,11 +116,11 @@
                 let valorFormatado = formatter.format(p.valor_atualizado);
                 
                 tr.innerHTML = `
-                    <td class="p-3 text-sm">${p.cliente}</td>
+                    <td class="p-3 text-sm text-center">${p.cliente}</td>
                     <td class="p-3 text-sm text-center">${p.numero_contrato}</td>
                     <td class="p-3 text-sm text-center">${p.parcela_num}</td>
                     <td class="p-3 text-sm text-center">${vencFormatado}</td>
-                    <td class="p-3 text-sm text-right">${valorFormatado}</td>
+                    <td class="p-3 text-sm text-center">${valorFormatado}</td>
                     <td class="p-3 text-sm text-center">${p.status}</td>
                 `;
                 tbody.appendChild(tr);
