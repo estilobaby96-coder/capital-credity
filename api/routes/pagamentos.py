@@ -49,7 +49,8 @@ def listar_parcelas_pendentes(db: Session = Depends(get_session)):
                 "multa": getattr(p, 'multa', 0.0) or 0.0,
                 "juros_mora": getattr(p, 'juros_mora', 0.0) or 0.0,
                 "dias_atraso": getattr(p, 'dias_atraso', 0) or 0,
-                "status": p.status
+                "status": p.status,
+                "cliente_whatsapp": p.emprestimo.cliente.whatsapp if p.emprestimo and p.emprestimo.cliente and p.emprestimo.cliente.whatsapp else p.emprestimo.cliente.telefone if p.emprestimo and p.emprestimo.cliente else ""
             }
             for p in parcelas
         ]
