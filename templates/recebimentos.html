@@ -47,11 +47,7 @@
                 const isAtrasada = p.status === 'ATRASADA';
                 const statusColor = isAtrasada ? 'text-red-600 dark:text-red-500' : 'text-yellow-600 dark:text-yellow-500';
                 
-                let dataFormatada = '-';
-                if(p.vencimento) {
-                    const [ano, mes, dia] = p.vencimento.split('T')[0].split('-');
-                    dataFormatada = `${dia}/${mes}/${ano}`;
-                }
+                let dataFormatada = formatarDataBR(p.vencimento);
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `

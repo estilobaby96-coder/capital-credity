@@ -27,3 +27,6 @@ logs/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+.vercel
+.env*

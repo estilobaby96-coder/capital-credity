@@ -227,9 +227,9 @@
                     <td class="px-4 py-2 text-center">${r.cliente}</td>
                     <td class="px-4 py-2 text-center">${r.numero_contrato}</td>
                     <td class="px-4 py-2 text-center">${r.parcela_num}</td>
-                    <td class="px-4 py-2 text-center">${r.vencimento}</td>
+                    <td class="px-4 py-2 text-center">${formatarDataBR(r.vencimento)}</td>
                     <td class="px-4 py-2 text-center">${formatter.format(r.valor_previsto)}</td>
-                    <td class="px-4 py-2 text-center">${r.data_pagamento}</td>
+                    <td class="px-4 py-2 text-center">${formatarDataBR(r.data_pagamento) || '-'}</td>
                     <td class="px-4 py-2 font-bold text-center">${formatter.format(r.valor_pago)}</td>
                     <td class="px-4 py-2 font-semibold text-center ${r.status_rotulo.includes('ATRASO') ? 'text-red-600' : (r.status_rotulo.includes('PAGO') ? 'text-green-600' : 'text-yellow-600')}">${r.status_rotulo}</td>
                 `;
@@ -267,14 +267,13 @@
             }
             
             data.forEach(r => {
-                let [y, m, d] = r.vencimento.split('-');
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="px-4 py-2 text-center font-semibold text-red-700">${r.cliente}</td>
-                    <td class="px-4 py-2 text-center">${r.cpf}</td>
+                    <td class="px-4 py-2 text-center">${formatarCPF(r.cpf)}</td>
                     <td class="px-4 py-2 text-center">${r.numero_contrato}</td>
                     <td class="px-4 py-2 text-center">${r.parcela_num}</td>
-                    <td class="px-4 py-2 text-center text-red-600">${d}/${m}/${y}</td>
+                    <td class="px-4 py-2 text-center text-red-600">${formatarDataBR(r.vencimento)}</td>
                     <td class="px-4 py-2 text-center font-bold">${formatter.format(r.valor)}</td>
                     <td class="px-4 py-2 text-center font-bold text-red-600">${r.dias_atraso}</td>
                 `;
@@ -319,10 +318,9 @@
             
             data.forEach(r => {
                 let [dt, time] = r.data.split('T');
-                let [y, m, d] = dt.split('-');
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="px-4 py-2 text-center">${d}/${m}/${y} ${time.substring(0,5)}</td>
+                    <td class="px-4 py-2 text-center">${formatarDataBR(r.data)} ${time ? time.substring(0,5) : ''}</td>
                     <td class="px-4 py-2 text-center font-bold ${r.tipo === 'ENTRADA' ? 'text-green-600' : 'text-red-600'}">${r.tipo}</td>
                     <td class="px-4 py-2 text-center">${r.forma_pagamento}</td>
                     <td class="px-4 py-2 text-center">${r.descricao}</td>
@@ -352,7 +350,7 @@
             text += ` EXTRATO DO CLIENTE \n`;
             text += `-------------------------------------------------\n\n`;
             text += ` NOME    : ${data.cliente.nome}\n`;
-            text += ` CPF     : ${data.cliente.cpf}\n`;
+            text += ` CPF     : ${formatarCPF(data.cliente.cpf)}\n`;
             text += ` TELEFONE: ${data.cliente.telefone}\n\n`;
             
             if (data.emprestimos.length === 0) {
@@ -369,8 +367,7 @@
                         emp.parcelas.forEach(p => {
                             let dt_venc = "—";
                             if(p.vencimento) {
-                                let [y, m, d] = p.vencimento.split('-');
-                                dt_venc = `${d}/${m}/${y}`;
+                                dt_venc = formatarDataBR(p.vencimento);
                             }
                             text += `      Parc ${String(p.numero).padStart(2, '0')} | Venc: ${dt_venc} | Val: ${formatter.format(p.valor).padStart(12)} | ${p.status}\n`;
                         });

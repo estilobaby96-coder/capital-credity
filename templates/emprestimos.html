@@ -13,7 +13,7 @@
         <thead>
             <tr>
                 <th>Nº Contrato</th>
-                <th>Cliente ID</th>
+
                 <th>Data</th>
                 <th>Valor Solicitado</th>
                 <th>Valor Total</th>
@@ -71,7 +71,7 @@
             const select = document.getElementById('e_cliente');
             select.innerHTML = '<option value="">Selecione...</option>';
             clientes.forEach(c => {
-                select.innerHTML += `<option value="${c.id}">${c.nome} (CPF: ${c.cpf})</option>`;
+                select.innerHTML += `<option value="${c.id}">${c.nome} (CPF: ${formatarCPF(c.cpf)})</option>`;
             });
         });
         
@@ -96,7 +96,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${e.numero_contrato}</td>
-                    <td>${e.cliente_id}</td>
+
                     <td>${new Date(e.data_emprestimo).toLocaleDateString('pt-BR')}</td>
                     <td>${formatter.format(e.valor_principal)}</td>
                     <td>${formatter.format(e.valor_total)}</td>

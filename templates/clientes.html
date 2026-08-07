@@ -12,7 +12,7 @@
     <table class="w-full table-theme text-sm">
         <thead>
             <tr>
-                <th>ID</th>
+
                 <th>Nome</th>
                 <th>CPF</th>
                 <th>Telefone</th>
@@ -112,9 +112,8 @@
             data.forEach(c => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${c.id}</td>
                     <td>${c.nome}</td>
-                    <td>${c.cpf}</td>
+                    <td>${formatarCPF(c.cpf)}</td>
                     <td>${c.telefone}</td>
                     <td>${c.nivel_score}</td>
                 `;

@@ -111,8 +111,7 @@
             parcelas.forEach(p => {
                 const tr = document.createElement('tr');
                 
-                let [y, m, d] = p.vencimento.split('-');
-                let vencFormatado = `${d}/${m}/${y}`;
+                let vencFormatado = formatarDataBR(p.vencimento);
                 let valorFormatado = formatter.format(p.valor_atualizado);
                 
                 tr.innerHTML = `
