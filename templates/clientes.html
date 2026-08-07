@@ -34,27 +34,27 @@
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div class="col-span-2">
                     <label class="block text-sm mb-1 text-gray-300">Nome Completo</label>
-                    <input type="text" id="c_nome" required class="input-dark">
+                    <input type="text" id="c_nome" required class="input-dark" oninput="this.value=this.value.toUpperCase()">
                 </div>
                 <div>
                     <label class="block text-sm mb-1 text-gray-300">CPF</label>
-                    <input type="text" id="c_cpf" required class="input-dark">
+                    <input type="text" id="c_cpf" required class="input-dark" maxlength="14" oninput="mascaraCPF(this)" placeholder="000.000.000-00">
                 </div>
                 <div>
                     <label class="block text-sm mb-1 text-gray-300">Telefone</label>
-                    <input type="text" id="c_telefone" required class="input-dark">
+                    <input type="text" id="c_telefone" required class="input-dark" oninput="this.value=this.value.toUpperCase()" placeholder="(00) 00000-0000">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-sm mb-1 text-gray-300">E-mail</label>
-                    <input type="email" id="c_email" class="input-dark">
+                    <input type="email" id="c_email" class="input-dark" oninput="this.value=this.value.toLowerCase()" placeholder="email@exemplo.com">
                 </div>
                 <div>
                     <label class="block text-sm mb-1 text-gray-300">CEP</label>
-                    <input type="text" id="c_cep" class="input-dark" onblur="buscarCEP()" maxlength="9">
+                    <input type="text" id="c_cep" class="input-dark" onblur="buscarCEP()" maxlength="9" oninput="mascaraCEP(this)" placeholder="00000-000">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-sm mb-1 text-gray-300">Endereço Completo</label>
-                    <input type="text" id="c_endereco" class="input-dark">
+                    <input type="text" id="c_endereco" class="input-dark" oninput="this.value=this.value.toUpperCase()">
                 </div>
             </div>
             
@@ -67,6 +67,20 @@
 </div>
 
 <script>
+    // ── Máscaras ──
+    function mascaraCPF(el) {
+        let v = el.value.replace(/\D/g, '').slice(0, 11);
+        v = v.replace(/(\d{3})(\d)/, '$1.$2');
+        v = v.replace(/(\d{3})(\d)/, '$1.$2');
+        v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        el.value = v;
+    }
+    function mascaraCEP(el) {
+        let v = el.value.replace(/\D/g, '').slice(0, 8);
+        v = v.replace(/(\d{5})(\d)/, '$1-$2');
+        el.value = v;
+    }
+
     function openModal() {
         document.getElementById('modalCliente').classList.remove('hidden');
         document.getElementById('modalCliente').classList.add('flex');

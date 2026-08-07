@@ -36,7 +36,7 @@ def listar_clientes(db: Session = Depends(get_session)):
 def criar_cliente(cliente: ClienteCreate, db: Session = Depends(get_session)):
     try:
         novo_cliente = cliente_service.save_cliente(db, cliente.model_dump())
-        return {"id": novo_cliente.id, "nome": novo_cliente.nome, "cpf_cnpj": novo_cliente.cpf_cnpj}
+        return {"id": novo_cliente.id, "nome": novo_cliente.nome, "cpf": novo_cliente.cpf}
     except ValidationError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
