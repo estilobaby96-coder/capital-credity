@@ -10,6 +10,9 @@ class ClienteCreate(BaseModel):
     nome: str
     cpf: str
     telefone: Optional[str] = ""
+    email: Optional[str] = ""
+    cep: Optional[str] = ""
+    endereco: Optional[str] = ""
 
 router = APIRouter(prefix="/clientes", tags=["Clientes"])
 cliente_service = ClienteService()
