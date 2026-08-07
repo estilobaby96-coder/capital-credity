@@ -114,8 +114,16 @@
         }
         
         function logout() {
-            localStorage.removeItem('token');
-            window.location.href = '/login';
+            Swal.fire({
+                title: 'Desconectando...',
+                text: 'Obrigado por utilizar o Capital Credity. Tenha um excelente dia!',
+                icon: 'info',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+            });
         }
 
         function toggleTheme() {

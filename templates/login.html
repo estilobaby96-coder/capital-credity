@@ -58,6 +58,7 @@
             
             if (res.ok) {
                 localStorage.setItem('token', data.access_token);
+                sessionStorage.setItem('justLoggedIn', 'true');
                 window.location.href = '/';
             } else {
                 Swal.fire('Erro', data.detail || 'Usuário ou senha inválidos', 'error');
