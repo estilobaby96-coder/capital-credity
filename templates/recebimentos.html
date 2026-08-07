@@ -16,6 +16,8 @@
                 <th>Contrato</th>
                 <th>Parcela</th>
                 <th>Vencimento</th>
+                <th>Dias Atraso</th>
+                <th>Acréscimos</th>
                 <th>Valor Atualizado</th>
                 <th>Status</th>
                 <th>Ações</th>
@@ -30,14 +32,14 @@
 <script>
     async function carregarPendentes() {
         const tbody = document.getElementById('tabelaPendentes');
-        tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center sub-text">Carregando...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-4 text-center sub-text">Carregando...</td></tr>';
         
         try {
             const parcelas = await fetchAPI('/pagamentos/pendentes');
             tbody.innerHTML = '';
             
             if (parcelas.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center sub-text">Nenhuma parcela pendente ou atrasada.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-4 text-center sub-text">Nenhuma parcela pendente ou atrasada.</td></tr>';
                 return;
             }
             
@@ -48,6 +50,23 @@
                 const statusColor = isAtrasada ? 'text-red-600 dark:text-red-500' : 'text-yellow-600 dark:text-yellow-500';
                 
                 let dataFormatada = formatarDataBR(p.vencimento);
+
+                const diasAtraso = p.dias_atraso || 0;
+                const multa = p.multa || 0;
+                const jurosMora = p.juros_mora || 0;
+                const totalAcrescimos = multa + jurosMora;
+                
+                let acrescimosHtml = '-';
+                if (totalAcrescimos > 0) {
+                    acrescimosHtml = `<span class="text-red-600 dark:text-red-400 font-bold">+${formatter.format(totalAcrescimos)}</span>
+                        <br><span class="text-xs sub-text">Multa: ${formatter.format(multa)} | Mora: ${formatter.format(jurosMora)}</span>`;
+                } else if (diasAtraso > 0) {
+                    acrescimosHtml = `<span class="text-brand-green font-bold">Isento (tolerância)</span>`;
+                }
+
+                let diasHtml = diasAtraso > 0 
+                    ? `<span class="font-bold ${diasAtraso > 3 ? 'text-red-600 dark:text-red-500' : 'text-yellow-600 dark:text-yellow-500'}">${diasAtraso} dia${diasAtraso > 1 ? 's' : ''}</span>`
+                    : '-';
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -55,6 +74,8 @@
                     <td>${p.numero_contrato}</td>
                     <td>${p.parcela_num}</td>
                     <td class="${isAtrasada ? 'font-bold text-red-600 dark:text-red-500' : ''}">${dataFormatada}</td>
+                    <td>${diasHtml}</td>
+                    <td>${acrescimosHtml}</td>
                     <td class="font-bold">${formatter.format(p.valor_atualizado)}</td>
                     <td class="font-bold ${statusColor}">${p.status}</td>
                     <td>
@@ -66,7 +87,7 @@
                 tbody.appendChild(tr);
             });
         } catch (e) {
-            tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center text-red-500">Erro ao carregar dados.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-4 text-center text-red-500">Erro ao carregar dados.</td></tr>';
             console.error(e);
         }
     }

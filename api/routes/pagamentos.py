@@ -46,6 +46,9 @@ def listar_parcelas_pendentes(db: Session = Depends(get_session)):
                 "parcela_num": p.numero,
                 "vencimento": p.data_vencimento.isoformat() if p.data_vencimento else None,
                 "valor_atualizado": p.valor_atualizado,
+                "multa": getattr(p, 'multa', 0.0) or 0.0,
+                "juros_mora": getattr(p, 'juros_mora', 0.0) or 0.0,
+                "dias_atraso": getattr(p, 'dias_atraso', 0) or 0,
                 "status": p.status
             }
             for p in parcelas

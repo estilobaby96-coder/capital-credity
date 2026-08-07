@@ -12,6 +12,7 @@ class Parcela(Base):
     capital = Column(Float, nullable=False)
     juros = Column(Float, nullable=False)
     multa = Column(Float, default=0.0)
+    juros_mora = Column(Float, default=0.0)
     desconto = Column(Float, default=0.0)
     dias_atraso = Column(Integer, default=0)
     valor_atualizado = Column(Float, nullable=False)

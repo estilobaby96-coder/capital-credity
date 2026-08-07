@@ -15,14 +15,67 @@ from repositories.emprestimo_repository import EmprestimoRepository
 
 
 class PagamentoService:
+    # ── Constantes de Atraso ──────────────────────────────────────
+    TOLERANCIA_DIAS = 3           # Dias de carência sem multa/juros
+    MULTA_ATRASO_PERC = 0.02      # 2% sobre o valor original
+    JUROS_MORA_MENSAL = 0.01      # 1% ao mês (pro-rata diário)
+
     def __init__(self):
         self.parcela_repo = ParcelaRepository()
         self.recebimento_repo = RecebimentoRepository()
         self.mov_repo = MovimentacaoRepository()
         self.emprestimo_repo = EmprestimoRepository()
 
+    def _atualizar_atraso_parcela(self, db: Session, parcela: Parcela) -> None:
+        """
+        Recalcula multa, juros de mora e valor_atualizado de uma parcela
+        baseado nos dias de atraso em relação a hoje.
+        - Até 3 dias: status ATRASADA mas sem taxa extra.
+        - Acima de 3 dias: aplica multa (2%) + juros de mora (1% a.m. pro-rata).
+        """
+        hoje = date.today()
+        vencimento = parcela.data_vencimento.date() if hasattr(parcela.data_vencimento, 'date') else parcela.data_vencimento
+        dias = (hoje - vencimento).days
+
+        if dias <= 0:
+            # Não está atrasada — garantir campos limpos
+            if parcela.status != "PAGA":
+                self.parcela_repo.update(db, parcela, {
+                    "dias_atraso": 0, "multa": 0.0, "juros_mora": 0.0,
+                    "valor_atualizado": parcela.capital + parcela.juros,
+                    "status": "A VENCER"
+                })
+            return
+
+        valor_original = parcela.capital + parcela.juros  # Base de cálculo
+
+        if dias <= self.TOLERANCIA_DIAS:
+            # Dentro da tolerância: status atrasada, valor sem acréscimos
+            self.parcela_repo.update(db, parcela, {
+                "dias_atraso": dias,
+                "multa": 0.0,
+                "juros_mora": 0.0,
+                "valor_atualizado": valor_original,
+                "status": "ATRASADA"
+            })
+        else:
+            # Fora da tolerância: multa + juros de mora
+            multa = round(valor_original * self.MULTA_ATRASO_PERC, 2)
+            taxa_diaria = self.JUROS_MORA_MENSAL / 30
+            juros_mora = round(valor_original * taxa_diaria * dias, 2)
+            novo_valor = round(valor_original + multa + juros_mora, 2)
+
+            self.parcela_repo.update(db, parcela, {
+                "dias_atraso": dias,
+                "multa": multa,
+                "juros_mora": juros_mora,
+                "valor_atualizado": novo_valor,
+                "status": "ATRASADA"
+            })
+
     def get_parcelas_pendentes_by_cliente(self, db: Session, cliente_id: int) -> List[Parcela]:
-        """Busca todas as parcelas pendentes de todos os empréstimos ativos de um cliente."""
+        """Busca todas as parcelas pendentes de todos os empréstimos ativos de um cliente.
+        Antes de retornar, recalcula automaticamente o atraso de cada parcela."""
         emprestimos = self.emprestimo_repo.get_by_cliente(db, cliente_id)
         pendentes = []
         for emp in emprestimos:
@@ -30,7 +83,11 @@ class PagamentoService:
                 parcelas = db.query(Parcela).options(
                     joinedload(Parcela.emprestimo)
                 ).filter(Parcela.emprestimo_id == emp.id).all()
-                pendentes.extend([p for p in parcelas if p.status in ("PENDENTE", "A VENCER", "ATRASADA")])
+                for p in parcelas:
+                    if p.status in ("PENDENTE", "A VENCER", "ATRASADA"):
+                        self._atualizar_atraso_parcela(db, p)
+                        pendentes.append(p)
+        db.commit()
         return sorted(pendentes, key=lambda x: x.data_vencimento)
 
     def registrar_pagamento(self, db: Session, parcela_id: int, valor_pago: float, 
