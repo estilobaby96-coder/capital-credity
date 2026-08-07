@@ -12,24 +12,24 @@ templates = Jinja2Templates(directory=templates_dir)
 
 @router.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(request, "login.html")
 
 @router.get("/", response_class=HTMLResponse)
 def dashboard_page(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+    return templates.TemplateResponse(request, "dashboard.html")
 
 @router.get("/clientes", response_class=HTMLResponse)
 def clientes_page(request: Request):
-    return templates.TemplateResponse("clientes.html", {"request": request})
+    return templates.TemplateResponse(request, "clientes.html")
 
 @router.get("/emprestimos", response_class=HTMLResponse)
 def emprestimos_page(request: Request):
-    return templates.TemplateResponse("emprestimos.html", {"request": request})
+    return templates.TemplateResponse(request, "emprestimos.html")
 
 @router.get("/recebimentos", response_class=HTMLResponse)
 def recebimentos_page(request: Request):
-    return templates.TemplateResponse("recebimentos.html", {"request": request})
+    return templates.TemplateResponse(request, "recebimentos.html")
 
 @router.get("/relatorios", response_class=HTMLResponse)
 def relatorios_page(request: Request):
-    return templates.TemplateResponse("relatorios.html", {"request": request})
+    return templates.TemplateResponse(request, "relatorios.html")
