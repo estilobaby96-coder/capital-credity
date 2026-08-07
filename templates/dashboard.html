@@ -1,7 +1,7 @@
 {% extends "app.html" %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-6 border-b page-border pb-4">
+<div class="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-2 mb-6 border-b page-border pb-4">
     <h1 class="text-2xl font-bold heading-text">Dashboard Financeiro</h1>
     <span class="sub-text" id="currentDate"></span>
 </div>
@@ -44,7 +44,7 @@
     </div>
 </div>
 
-<div class="bg-brand-green p-4 rounded-lg shadow flex items-center justify-between mb-6">
+<div class="bg-brand-green p-4 rounded-lg shadow flex flex-col md:flex-row items-center justify-between mb-6 gap-2">
     <div class="flex items-center text-white font-bold text-lg">
         <i class="fa-solid fa-sack-dollar mr-2"></i> Recebido Hoje
     </div>
