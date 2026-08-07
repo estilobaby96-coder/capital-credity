@@ -25,7 +25,7 @@ if cloud_db_url:
         cloud_db_url = cloud_db_url.replace("postgres://", "postgresql://", 1)
     db_url = cloud_db_url
 else:
-    db_url = os.getenv("DB_URL", f"sqlite:///{db_path}")
+    db_url = os.getenv("DB_URL", "postgresql+psycopg2://neondb_owner:npg_jyOR1Ae9HKJM@ep-divine-pine-ac71arap-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require")
 
 # Cria o engine
 engine = create_engine(
