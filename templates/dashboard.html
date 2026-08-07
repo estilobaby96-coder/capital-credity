@@ -130,28 +130,21 @@
         }
     }
     
-    window.onload = function() {
+    document.addEventListener('DOMContentLoaded', function() {
         if (sessionStorage.getItem('justLoggedIn')) {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-            });
-            
-            Toast.fire({
+            const isDark = document.documentElement.classList.contains('dark');
+            Swal.fire({
                 icon: 'success',
-                title: 'Bem-vindo de volta! Tenha um excelente trabalho.'
+                title: 'Bem-vindo de volta!',
+                text: 'Tenha um excelente trabalho.',
+                timer: 2500,
+                showConfirmButton: false,
+                background: isDark ? '#2a2a2a' : '#ffffff',
+                color: isDark ? '#ffffff' : '#111827'
             });
-            
             sessionStorage.removeItem('justLoggedIn');
         }
         loadDashboard();
-    };
+    });
 </script>
 {% endblock %}
