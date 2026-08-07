@@ -42,7 +42,7 @@
                 </div>
                 <div>
                     <label class="block text-sm mb-1 text-gray-300">Telefone</label>
-                    <input type="text" id="c_telefone" required class="input-dark" oninput="this.value=this.value.toUpperCase()" placeholder="(00) 00000-0000">
+                    <input type="text" id="c_telefone" required class="input-dark" oninput="mascaraTelefone(this)" maxlength="15" placeholder="(00) 00000-0000">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-sm mb-1 text-gray-300">E-mail</label>
@@ -78,6 +78,17 @@
     function mascaraCEP(el) {
         let v = el.value.replace(/\D/g, '').slice(0, 8);
         v = v.replace(/(\d{5})(\d)/, '$1-$2');
+        el.value = v;
+    }
+    function mascaraTelefone(el) {
+        let v = el.value.replace(/\D/g, '').slice(0, 11);
+        if (v.length <= 10) {
+            v = v.replace(/(\d{2})(\d)/, '($1) $2');
+            v = v.replace(/(\d{4})(\d)/, '$1-$2');
+        } else {
+            v = v.replace(/(\d{2})(\d)/, '($1) $2');
+            v = v.replace(/(\d{5})(\d)/, '$1-$2');
+        }
         el.value = v;
     }
 
