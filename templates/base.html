@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -30,18 +31,76 @@
         }
     </script>
     <style>
-        html, body { background-color: #1E1E1E !important; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; position: relative; z-index: 1; }
-        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #1E1E1E; z-index: -1; }
-        .sidebar { background-color: #252526; border-right: 1px solid #333; }
+        html, body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* ── Tema Claro (padrão) ─────────────── */
+        body { background-color: #f3f4f6; color: #111827; }
+        .sidebar-app { background-color: #ffffff; border-right: 1px solid #e5e7eb; }
         .btn-green { background-color: #00C853; color: white; transition: 0.2s; }
         .btn-green:hover { background-color: #00E676; }
-        .input-dark { background-color: #333; color: white; border: 1px solid #444; border-radius: 4px; padding: 8px; width: 100%; }
-        .input-dark:focus { outline: none; border-color: #00C853; }
-        .table-dark th { background-color: #252526; padding: 12px; text-align: left; }
-        .table-dark td { padding: 12px; border-bottom: 1px solid #333; }
-        .table-dark tbody tr:hover { background-color: #2a2a2a; }
+        .input-field { background-color: #f9fafb; color: #111827; border: 1px solid #d1d5db; border-radius: 6px; padding: 8px; width: 100%; }
+        .input-field:focus { outline: none; border-color: #00C853; box-shadow: 0 0 0 2px rgba(0,200,83,0.2); }
+        .card { background-color: #ffffff; border: 1px solid #e5e7eb; }
+        .table-theme th { background-color: #f9fafb; padding: 12px; text-align: left; color: #374151; border-bottom: 2px solid #e5e7eb; }
+        .table-theme td { padding: 12px; border-bottom: 1px solid #e5e7eb; color: #374151; }
+        .table-theme tbody tr:hover { background-color: #f3f4f6; }
+        .modal-bg { background-color: #ffffff; border: 1px solid #e5e7eb; }
+        .content-area { background-color: #f3f4f6; }
+        .page-border { border-color: #e5e7eb; }
+        .label-text { color: #4b5563; }
+        .sub-text { color: #6b7280; }
+        .heading-text { color: #111827; }
+        .select-field { background-color: #f9fafb; color: #111827; border: 1px solid #d1d5db; border-radius: 6px; padding: 8px; }
+        .filter-bg { background-color: #ffffff; border: 1px solid #e5e7eb; }
+
+        /* ── Tema Escuro (quando html tem classe "dark") ─────────────── */
+        html.dark body { background-color: #1E1E1E; color: #ffffff; }
+        html.dark .sidebar-app { background-color: #252526; border-right: 1px solid #333; }
+        html.dark .input-field { background-color: #333; color: #ffffff; border: 1px solid #444; }
+        html.dark .input-field:focus { border-color: #00C853; box-shadow: 0 0 0 2px rgba(0,200,83,0.3); }
+        html.dark .card { background-color: #242424; border-color: #333; }
+        html.dark .table-theme th { background-color: #252526; color: #d1d5db; border-bottom-color: #444; }
+        html.dark .table-theme td { border-bottom-color: #333; color: #d1d5db; }
+        html.dark .table-theme tbody tr:hover { background-color: #2a2a2a; }
+        html.dark .modal-bg { background-color: #2a2a2a; border-color: #555; }
+        html.dark .content-area { background-color: #1E1E1E; }
+        html.dark .page-border { border-color: #444; }
+        html.dark .label-text { color: #9ca3af; }
+        html.dark .sub-text { color: #6b7280; }
+        html.dark .heading-text { color: #ffffff; }
+        html.dark .select-field { background-color: #333; color: #ffffff; border-color: #555; }
+        html.dark .filter-bg { background-color: #242424; border-color: #333; }
+
+        /* ── Login Page SEMPRE escuro ─────────────── */
+        .login-page { background-color: #1E1E1E !important; color: #ffffff !important; }
+        .login-card { background-color: #252526; }
+        .login-input { background-color: #333; color: white; border: 1px solid #444; border-radius: 6px; padding: 8px; width: 100%; }
+        .login-input:focus { outline: none; border-color: #00C853; }
+
+        /* ── Toggle animado ─────────────── */
+        .theme-toggle { position: relative; width: 48px; height: 24px; border-radius: 12px; cursor: pointer; transition: background-color 0.3s; }
+        .theme-toggle .toggle-knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: white; transition: transform 0.3s; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+        .theme-toggle.light { background-color: #d1d5db; }
+        .theme-toggle.dark { background-color: #374151; }
+        .theme-toggle.dark .toggle-knob { transform: translateX(24px); }
     </style>
     <script>
+        // ── Tema: Inicialização ──
+        // Na tela de login, NÃO aplicamos tema (login é sempre escuro)
+        // Nas demais telas, verificamos localStorage
+        (function() {
+            const isLogin = window.location.pathname === '/login';
+            if (!isLogin) {
+                const saved = localStorage.getItem('theme');
+                // Padrão = claro (sem classe "dark")
+                if (saved === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }
+        })();
+
         // Lógica de Autenticação Global
         function checkAuth() {
             const token = localStorage.getItem('token');
@@ -57,6 +116,25 @@
         function logout() {
             localStorage.removeItem('token');
             window.location.href = '/login';
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateToggleButton(isDark);
+        }
+
+        function updateToggleButton(isDark) {
+            const toggle = document.getElementById('themeToggle');
+            if (!toggle) return;
+            if (isDark) {
+                toggle.className = 'theme-toggle dark';
+                toggle.querySelector('.toggle-knob').innerHTML = '🌙';
+            } else {
+                toggle.className = 'theme-toggle light';
+                toggle.querySelector('.toggle-knob').innerHTML = '☀️';
+            }
         }
 
         async function fetchAPI(endpoint, options = {}) {

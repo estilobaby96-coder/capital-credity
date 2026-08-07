@@ -1,10 +1,9 @@
 {% extends "base.html" %}
 
 {% block layout %}
-<div class="flex h-full w-full" style="position: relative; z-index: 10;">
-    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #1E1E1E; z-index: -1;"></div>
+<div class="flex h-full w-full">
     <!-- Sidebar -->
-    <div class="sidebar w-64 h-full flex flex-col items-center py-6" style="background-color: #252526; z-index: 11;">
+    <div class="sidebar-app w-64 h-full flex flex-col items-center py-6 shadow-lg">
         <img src="/assets/logo/logo.png" alt="Capital Credity" class="w-48 mb-8" onerror="this.src=''">
         
         <div class="w-full px-4 flex flex-col gap-3 flex-grow">
@@ -13,10 +12,17 @@
             <a href="/emprestimos" class="btn-green rounded px-4 py-2 text-center w-full block">Empréstimos</a>
             <a href="/recebimentos" class="btn-green rounded px-4 py-2 text-center w-full block">Recebimentos</a>
             <a href="/relatorios" class="btn-green rounded px-4 py-2 text-center w-full block">Relatórios</a>
-            <a href="/politica" class="bg-dark-700 hover:bg-dark-900 border border-gray-600 text-gray-200 rounded px-4 py-2 text-center w-full block mt-2 transition">Política de Crédito</a>
+            <a href="/politica" class="border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-700 rounded px-4 py-2 text-center w-full block mt-2 transition">Política de Crédito</a>
         </div>
 
-        <div class="w-full px-4 mt-auto">
+        <!-- Theme Toggle + Logout -->
+        <div class="w-full px-4 mt-auto flex flex-col gap-3">
+            <div class="flex items-center justify-between px-2">
+                <span class="text-sm label-text">Tema</span>
+                <div id="themeToggle" class="theme-toggle light" onclick="toggleTheme()">
+                    <div class="toggle-knob">☀️</div>
+                </div>
+            </div>
             <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white rounded px-4 py-2 w-full text-center transition">
                 Sair do Sistema
             </button>
@@ -24,8 +30,16 @@
     </div>
 
     <!-- Main Content -->
-    <div class="flex-grow h-full p-8 overflow-y-auto" style="background-color: #1E1E1E; z-index: 11;">
+    <div class="flex-grow h-full p-8 overflow-y-auto content-area">
         {% block content %}{% endblock %}
     </div>
 </div>
+
+<script>
+    // Inicializar visual do toggle ao carregar
+    document.addEventListener('DOMContentLoaded', function() {
+        const isDark = document.documentElement.classList.contains('dark');
+        updateToggleButton(isDark);
+    });
+</script>
 {% endblock %}

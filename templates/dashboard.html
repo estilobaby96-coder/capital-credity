@@ -1,46 +1,46 @@
 {% extends "app.html" %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
-    <h1 class="text-2xl font-bold">Dashboard Financeiro</h1>
-    <span class="text-gray-400" id="currentDate"></span>
+<div class="flex justify-between items-center mb-6 border-b page-border pb-4">
+    <h1 class="text-2xl font-bold heading-text">Dashboard Financeiro</h1>
+    <span class="sub-text" id="currentDate"></span>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-    <div class="bg-[#242424] p-4 rounded-lg border-t-4 border-green-500 shadow">
-        <h3 class="text-gray-400 text-sm">Clientes Cadastrados</h3>
-        <p class="text-2xl font-bold mt-1" id="kpiClientes">-</p>
+    <div class="card p-4 rounded-lg border-t-4 border-green-500 shadow">
+        <h3 class="sub-text text-sm">Clientes Cadastrados</h3>
+        <p class="text-2xl font-bold mt-1 heading-text" id="kpiClientes">-</p>
     </div>
-    <div class="bg-[#242424] p-4 rounded-lg border-t-4 border-blue-500 shadow">
-        <h3 class="text-gray-400 text-sm">Empréstimos Ativos</h3>
-        <p class="text-2xl font-bold mt-1" id="kpiAtivos">-</p>
+    <div class="card p-4 rounded-lg border-t-4 border-blue-500 shadow">
+        <h3 class="sub-text text-sm">Empréstimos Ativos</h3>
+        <p class="text-2xl font-bold mt-1 heading-text" id="kpiAtivos">-</p>
     </div>
-    <div class="bg-[#242424] p-4 rounded-lg border-t-4 border-gray-500 shadow">
-        <h3 class="text-gray-400 text-sm">Empréstimos Quitados</h3>
-        <p class="text-2xl font-bold mt-1" id="kpiQuitados">-</p>
+    <div class="card p-4 rounded-lg border-t-4 border-gray-500 shadow">
+        <h3 class="sub-text text-sm">Empréstimos Quitados</h3>
+        <p class="text-2xl font-bold mt-1 heading-text" id="kpiQuitados">-</p>
     </div>
-    <div class="bg-[#242424] p-4 rounded-lg border-t-4 border-orange-500 shadow">
-        <h3 class="text-gray-400 text-sm">Capital Emprestado</h3>
-        <p class="text-2xl font-bold mt-1" id="kpiCapital">-</p>
+    <div class="card p-4 rounded-lg border-t-4 border-orange-500 shadow">
+        <h3 class="sub-text text-sm">Capital Emprestado</h3>
+        <p class="text-2xl font-bold mt-1 heading-text" id="kpiCapital">-</p>
     </div>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-    <div class="bg-[#242424] p-4 rounded-lg border-t-4 border-cyan-500 shadow">
-        <h3 class="text-gray-400 text-sm">Parcelas a Vencer</h3>
-        <p class="text-2xl font-bold mt-1" id="kpiVencer">-</p>
+    <div class="card p-4 rounded-lg border-t-4 border-cyan-500 shadow">
+        <h3 class="sub-text text-sm">Parcelas a Vencer</h3>
+        <p class="text-2xl font-bold mt-1 heading-text" id="kpiVencer">-</p>
     </div>
-    <div class="bg-[#242424] p-4 rounded-lg border-t-4 border-red-500 shadow">
-        <h3 class="text-gray-400 text-sm">Parcelas Atrasadas</h3>
-        <p class="text-2xl font-bold mt-1" id="kpiAtrasadas">-</p>
+    <div class="card p-4 rounded-lg border-t-4 border-red-500 shadow">
+        <h3 class="sub-text text-sm">Parcelas Atrasadas</h3>
+        <p class="text-2xl font-bold mt-1 heading-text" id="kpiAtrasadas">-</p>
     </div>
-    <div class="bg-[#242424] p-4 rounded-lg border-t-4 border-purple-500 shadow">
-        <h3 class="text-gray-400 text-sm">Total a Receber</h3>
-        <p class="text-2xl font-bold mt-1" id="kpiTotalReceber">-</p>
+    <div class="card p-4 rounded-lg border-t-4 border-purple-500 shadow">
+        <h3 class="sub-text text-sm">Total a Receber</h3>
+        <p class="text-2xl font-bold mt-1 heading-text" id="kpiTotalReceber">-</p>
     </div>
-    <div class="bg-[#242424] p-4 rounded-lg border-t-4 border-green-400 shadow">
-        <h3 class="text-gray-400 text-sm">Recebido no Mês</h3>
-        <p class="text-2xl font-bold mt-1" id="kpiRecebidoMes">-</p>
+    <div class="card p-4 rounded-lg border-t-4 border-green-400 shadow">
+        <h3 class="sub-text text-sm">Recebido no Mês</h3>
+        <p class="text-2xl font-bold mt-1 heading-text" id="kpiRecebidoMes">-</p>
     </div>
 </div>
 
@@ -51,21 +51,21 @@
     <div class="text-2xl font-bold text-white" id="kpiRecebidoHoje">R$ 0,00</div>
 </div>
 
-<h2 class="text-xl font-bold mb-4">Próximas Parcelas a Vencer</h2>
-<div class="bg-[#242424] rounded-lg shadow overflow-x-auto">
-    <table class="w-full text-left border-collapse">
+<h2 class="text-xl font-bold mb-4 heading-text">Próximas Parcelas a Vencer</h2>
+<div class="card rounded-lg shadow overflow-x-auto">
+    <table class="w-full text-left border-collapse table-theme">
         <thead>
-            <tr class="border-b border-gray-700 bg-[#333]">
-                <th class="p-3 text-sm font-semibold text-gray-300">Cliente</th>
-                <th class="p-3 text-sm font-semibold text-gray-300 text-center">Contrato</th>
-                <th class="p-3 text-sm font-semibold text-gray-300 text-center">Parcela</th>
-                <th class="p-3 text-sm font-semibold text-gray-300 text-center">Vencimento</th>
-                <th class="p-3 text-sm font-semibold text-gray-300 text-right">Valor</th>
-                <th class="p-3 text-sm font-semibold text-gray-300 text-center">Status</th>
+            <tr>
+                <th class="p-3 text-sm font-semibold">Cliente</th>
+                <th class="p-3 text-sm font-semibold text-center">Contrato</th>
+                <th class="p-3 text-sm font-semibold text-center">Parcela</th>
+                <th class="p-3 text-sm font-semibold text-center">Vencimento</th>
+                <th class="p-3 text-sm font-semibold text-right">Valor</th>
+                <th class="p-3 text-sm font-semibold text-center">Status</th>
             </tr>
         </thead>
         <tbody id="parcelasTbody">
-            <tr><td colspan="6" class="p-4 text-center text-gray-500">Carregando...</td></tr>
+            <tr><td colspan="6" class="p-4 text-center sub-text">Carregando...</td></tr>
         </tbody>
     </table>
 </div>
@@ -104,13 +104,12 @@
             tbody.innerHTML = '';
             
             if (parcelas.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Nenhuma parcela próxima do vencimento.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center sub-text">Nenhuma parcela próxima do vencimento.</td></tr>';
                 return;
             }
             
             parcelas.forEach(p => {
                 const tr = document.createElement('tr');
-                tr.className = "border-b border-gray-700 hover:bg-[#333]";
                 
                 let [y, m, d] = p.vencimento.split('-');
                 let vencFormatado = `${d}/${m}/${y}`;

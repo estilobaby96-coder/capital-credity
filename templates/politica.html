@@ -2,89 +2,89 @@
 
 {% block content %}
 <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold text-white">Política de Crédito</h1>
+    <h1 class="text-2xl font-bold heading-text">Política de Crédito</h1>
 </div>
 
-<div class="bg-dark-800 rounded-lg p-8 shadow-lg max-w-4xl">
+<div class="card rounded-lg p-8 shadow-lg max-w-4xl">
     
-    <div class="prose prose-invert max-w-none text-gray-300">
-        <h2 class="text-xl font-bold text-white mb-4 border-b border-gray-700 pb-2">🎯 Evolução de Nível (Score de Crédito)</h2>
+    <div class="prose prose-invert max-w-none sub-text">
+        <h2 class="text-xl font-bold heading-text mb-4 border-b page-border pb-2">🎯 Evolução de Nível (Score de Crédito)</h2>
         <p class="mb-4">
             A evolução de nível do cliente ocorre de forma totalmente automática, baseada no histórico de pagamentos <strong>integrais</strong> (quitação da dívida). A rolagem de dívida (pagamento apenas de juros) não é contabilizada para fins de progressão de nível.
         </p>
         <p class="mb-6">O sistema divide os clientes em quatro patamares principais:</p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            <div class="bg-dark-700 p-4 rounded border-l-4" style="border-color: #CD7F32;">
-                <h3 class="text-lg font-bold text-white mb-2">🥉 Nível Bronze</h3>
+            <div class="bg-gray-50 dark:bg-dark-700 p-4 rounded border-l-4" style="border-color: #CD7F32;">
+                <h3 class="text-lg font-bold heading-text mb-2">🥉 Nível Bronze</h3>
                 <ul class="list-disc pl-5 mb-2">
                     <li><strong>Condição:</strong> 0 empréstimos quitados.</li>
                     <li><strong>Limite Máximo:</strong> <span class="text-brand-green font-bold">R$ 1.000,00</span></li>
                 </ul>
-                <p class="text-sm text-gray-400">É o nível de entrada. Todo cliente recém-cadastrado na plataforma inicia nesta categoria.</p>
+                <p class="text-sm sub-text">É o nível de entrada. Todo cliente recém-cadastrado na plataforma inicia nesta categoria.</p>
             </div>
             
-            <div class="bg-dark-700 p-4 rounded border-l-4" style="border-color: #C0C0C0;">
-                <h3 class="text-lg font-bold text-white mb-2">🥈 Nível Prata</h3>
+            <div class="bg-gray-50 dark:bg-dark-700 p-4 rounded border-l-4" style="border-color: #C0C0C0;">
+                <h3 class="text-lg font-bold heading-text mb-2">🥈 Nível Prata</h3>
                 <ul class="list-disc pl-5 mb-2">
                     <li><strong>Condição:</strong> 1 a 2 empréstimos quitados.</li>
                     <li><strong>Limite Máximo:</strong> <span class="text-brand-green font-bold">R$ 2.500,00</span></li>
                 </ul>
-                <p class="text-sm text-gray-400">O cliente já provou capacidade de pagamento ao liquidar totalmente pelo menos um contrato.</p>
+                <p class="text-sm sub-text">O cliente já provou capacidade de pagamento ao liquidar totalmente pelo menos um contrato.</p>
             </div>
 
-            <div class="bg-dark-700 p-4 rounded border-l-4" style="border-color: #FFD700;">
-                <h3 class="text-lg font-bold text-white mb-2">🥇 Nível Ouro</h3>
+            <div class="bg-gray-50 dark:bg-dark-700 p-4 rounded border-l-4" style="border-color: #FFD700;">
+                <h3 class="text-lg font-bold heading-text mb-2">🥇 Nível Ouro</h3>
                 <ul class="list-disc pl-5 mb-2">
                     <li><strong>Condição:</strong> 3 a 4 empréstimos quitados.</li>
                     <li><strong>Limite Máximo:</strong> <span class="text-brand-green font-bold">R$ 5.000,00</span></li>
                 </ul>
-                <p class="text-sm text-gray-400">Clientes recorrentes que demonstram alta confiabilidade e histórico positivo estabelecido.</p>
+                <p class="text-sm sub-text">Clientes recorrentes que demonstram alta confiabilidade e histórico positivo estabelecido.</p>
             </div>
 
-            <div class="bg-dark-700 p-4 rounded border-l-4" style="border-color: #B9F2FF;">
-                <h3 class="text-lg font-bold text-white mb-2">💎 Nível Diamante</h3>
+            <div class="bg-gray-50 dark:bg-dark-700 p-4 rounded border-l-4" style="border-color: #B9F2FF;">
+                <h3 class="text-lg font-bold heading-text mb-2">💎 Nível Diamante</h3>
                 <ul class="list-disc pl-5 mb-2">
                     <li><strong>Condição:</strong> 5 ou mais empréstimos quitados.</li>
                     <li><strong>Limite Máximo:</strong> <span class="text-brand-green font-bold">R$ 15.000,00</span></li>
                 </ul>
-                <p class="text-sm text-gray-400">Categoria máxima, destinada aos clientes premium da carteira.</p>
+                <p class="text-sm sub-text">Categoria máxima, destinada aos clientes premium da carteira.</p>
             </div>
         </div>
 
-        <h2 class="text-xl font-bold text-white mb-4 border-b border-gray-700 pb-2">🛡️ Termômetro de Risco e Bloqueios</h2>
+        <h2 class="text-xl font-bold heading-text mb-4 border-b page-border pb-2">🛡️ Termômetro de Risco e Bloqueios</h2>
         
         <div class="bg-red-900 bg-opacity-20 border border-red-500 text-red-200 p-4 rounded-lg mb-6">
             <strong><i class="fas fa-exclamation-triangle mr-2"></i> Bloqueio de Segurança por Limite:</strong> 
             O sistema impedirá ativamente a criação de novos empréstimos se o Valor Solicitado ultrapassar o Saldo de Limite Disponível do cliente para o seu nível atual.
         </div>
 
-        <h3 class="font-bold text-white mb-3">Indicadores Visuais de Risco</h3>
+        <h3 class="font-bold heading-text mb-3">Indicadores Visuais de Risco</h3>
         <ul class="space-y-4 mb-8">
             <li class="flex gap-3">
                 <span class="text-2xl">🟢</span>
                 <div>
                     <strong>Baixo Risco:</strong>
-                    <p class="text-sm text-gray-400">Cliente pontual, com taxa de pagamento em dia acima de 90%. Pouco ou nenhum histórico de rolagens de dívida (menos que 3).</p>
+                    <p class="text-sm sub-text">Cliente pontual, com taxa de pagamento em dia acima de 90%. Pouco ou nenhum histórico de rolagens de dívida (menos que 3).</p>
                 </div>
             </li>
             <li class="flex gap-3">
                 <span class="text-2xl">🟡</span>
                 <div>
                     <strong>Médio Risco:</strong>
-                    <p class="text-sm text-gray-400">Cliente possui taxa de pontualidade entre 70% e 89% OU já efetuou 3 ou mais rolagens de dívida.</p>
+                    <p class="text-sm sub-text">Cliente possui taxa de pontualidade entre 70% e 89% OU já efetuou 3 ou mais rolagens de dívida.</p>
                 </div>
             </li>
             <li class="flex gap-3">
                 <span class="text-2xl">🔴</span>
                 <div>
                     <strong>Alto Risco:</strong>
-                    <p class="text-sm text-gray-400">Taxa de pontualidade abaixo de 70% OU possui empréstimos com status em ATRASO.</p>
+                    <p class="text-sm sub-text">Taxa de pontualidade abaixo de 70% OU possui empréstimos com status em ATRASO.</p>
                 </div>
             </li>
         </ul>
 
-        <h2 class="text-xl font-bold text-white mb-4 border-b border-gray-700 pb-2">🚫 Tolerância Zero com Inadimplência</h2>
+        <h2 class="text-xl font-bold heading-text mb-4 border-b page-border pb-2">🚫 Tolerância Zero com Inadimplência</h2>
         
         <div class="bg-red-900 bg-opacity-40 border-l-4 border-red-600 p-4 mb-4">
             <p class="mb-2"><strong>Bloqueio Total por Inadimplência:</strong></p>

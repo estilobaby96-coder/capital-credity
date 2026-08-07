@@ -1,15 +1,15 @@
 {% extends "app.html" %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
-    <h1 class="text-2xl font-bold">Gerenciar Clientes</h1>
+<div class="flex justify-between items-center mb-6 border-b page-border pb-4">
+    <h1 class="text-2xl font-bold heading-text">Gerenciar Clientes</h1>
     <button onclick="openModal()" class="btn-green font-bold py-2 px-4 rounded shadow">
         + Novo Cliente
     </button>
 </div>
 
-<div class="bg-[#242424] rounded-lg overflow-hidden shadow">
-    <table class="w-full table-dark text-sm">
+<div class="card rounded-lg overflow-hidden shadow">
+    <table class="w-full table-theme text-sm">
         <thead>
             <tr>
                 <th>ID</th>
@@ -26,40 +26,40 @@
 </div>
 
 <!-- Modal Novo Cliente -->
-<div id="modalCliente" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
-    <div class="bg-[#2a2a2a] p-6 rounded-lg shadow-xl w-full max-w-lg border border-gray-600">
-        <h2 class="text-xl font-bold mb-4">Novo Cliente</h2>
+<div id="modalCliente" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="modal-bg p-6 rounded-lg shadow-xl w-full max-w-lg">
+        <h2 class="text-xl font-bold mb-4 heading-text">Novo Cliente</h2>
         
         <form id="formCliente" onsubmit="saveCliente(event)">
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div class="col-span-2">
-                    <label class="block text-sm mb-1 text-gray-300">Nome Completo</label>
-                    <input type="text" id="c_nome" required class="input-dark" oninput="this.value=this.value.toUpperCase()">
+                    <label class="block text-sm mb-1 label-text">Nome Completo</label>
+                    <input type="text" id="c_nome" required class="input-field" oninput="this.value=this.value.toUpperCase()">
                 </div>
                 <div>
-                    <label class="block text-sm mb-1 text-gray-300">CPF</label>
-                    <input type="text" id="c_cpf" required class="input-dark" maxlength="14" oninput="mascaraCPF(this)" placeholder="000.000.000-00">
+                    <label class="block text-sm mb-1 label-text">CPF</label>
+                    <input type="text" id="c_cpf" required class="input-field" maxlength="14" oninput="mascaraCPF(this)" placeholder="000.000.000-00">
                 </div>
                 <div>
-                    <label class="block text-sm mb-1 text-gray-300">Telefone</label>
-                    <input type="text" id="c_telefone" required class="input-dark" oninput="mascaraTelefone(this)" maxlength="15" placeholder="(00) 00000-0000">
+                    <label class="block text-sm mb-1 label-text">Telefone</label>
+                    <input type="text" id="c_telefone" required class="input-field" oninput="mascaraTelefone(this)" maxlength="15" placeholder="(00) 00000-0000">
                 </div>
                 <div class="col-span-2">
-                    <label class="block text-sm mb-1 text-gray-300">E-mail</label>
-                    <input type="email" id="c_email" class="input-dark" oninput="this.value=this.value.toLowerCase()" placeholder="email@exemplo.com">
+                    <label class="block text-sm mb-1 label-text">E-mail</label>
+                    <input type="email" id="c_email" class="input-field" oninput="this.value=this.value.toLowerCase()" placeholder="email@exemplo.com">
                 </div>
                 <div>
-                    <label class="block text-sm mb-1 text-gray-300">CEP</label>
-                    <input type="text" id="c_cep" class="input-dark" onblur="buscarCEP()" maxlength="9" oninput="mascaraCEP(this)" placeholder="00000-000">
+                    <label class="block text-sm mb-1 label-text">CEP</label>
+                    <input type="text" id="c_cep" class="input-field" onblur="buscarCEP()" maxlength="9" oninput="mascaraCEP(this)" placeholder="00000-000">
                 </div>
                 <div class="col-span-2">
-                    <label class="block text-sm mb-1 text-gray-300">Endereço Completo</label>
-                    <input type="text" id="c_endereco" class="input-dark" oninput="this.value=this.value.toUpperCase()">
+                    <label class="block text-sm mb-1 label-text">Endereço Completo</label>
+                    <input type="text" id="c_endereco" class="input-field" oninput="this.value=this.value.toUpperCase()">
                 </div>
             </div>
             
             <div class="flex justify-end gap-3 mt-6">
-                <button type="button" onclick="closeModal()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded transition">Cancelar</button>
+                <button type="button" onclick="closeModal()" class="bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded transition">Cancelar</button>
                 <button type="submit" id="btnSalvar" class="btn-green px-4 py-2 rounded shadow font-bold">Salvar Cliente</button>
             </div>
         </form>

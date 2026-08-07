@@ -1,15 +1,15 @@
 {% extends "app.html" %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
-    <h1 class="text-2xl font-bold">Gestão de Empréstimos</h1>
+<div class="flex justify-between items-center mb-6 border-b page-border pb-4">
+    <h1 class="text-2xl font-bold heading-text">Gestão de Empréstimos</h1>
     <button onclick="openModal()" class="btn-green font-bold py-2 px-4 rounded shadow">
         + Novo Empréstimo
     </button>
 </div>
 
-<div class="bg-[#242424] rounded-lg overflow-hidden shadow">
-    <table class="w-full table-dark text-sm">
+<div class="card rounded-lg overflow-hidden shadow">
+    <table class="w-full table-theme text-sm">
         <thead>
             <tr>
                 <th>Nº Contrato</th>
@@ -27,34 +27,34 @@
 </div>
 
 <!-- Modal Novo Empréstimo -->
-<div id="modalEmprestimo" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
-    <div class="bg-[#2a2a2a] p-6 rounded-lg shadow-xl w-full max-w-lg border border-gray-600">
-        <h2 class="text-xl font-bold mb-4">Novo Empréstimo</h2>
+<div id="modalEmprestimo" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="modal-bg p-6 rounded-lg shadow-xl w-full max-w-lg">
+        <h2 class="text-xl font-bold mb-4 heading-text">Novo Empréstimo</h2>
         
         <form id="formEmprestimo" onsubmit="saveEmprestimo(event)">
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div class="col-span-2">
-                    <label class="block text-sm mb-1 text-gray-300">Cliente</label>
-                    <select id="e_cliente" required class="input-dark">
+                    <label class="block text-sm mb-1 label-text">Cliente</label>
+                    <select id="e_cliente" required class="select-field w-full">
                         <option value="">Selecione...</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm mb-1 text-gray-300">Valor (R$)</label>
-                    <input type="number" id="e_valor" step="0.01" required class="input-dark">
+                    <label class="block text-sm mb-1 label-text">Valor (R$)</label>
+                    <input type="number" id="e_valor" step="0.01" required class="input-field">
                 </div>
                 <div>
-                    <label class="block text-sm mb-1 text-gray-300">Taxa Juros (%)</label>
-                    <input type="number" id="e_taxa" step="0.1" required class="input-dark">
+                    <label class="block text-sm mb-1 label-text">Taxa Juros (%)</label>
+                    <input type="number" id="e_taxa" step="0.1" required class="input-field">
                 </div>
                 <div class="col-span-2">
-                    <label class="block text-sm mb-1 text-gray-300">Data de Vencimento</label>
-                    <input type="date" id="e_data" required class="input-dark">
+                    <label class="block text-sm mb-1 label-text">Data de Vencimento</label>
+                    <input type="date" id="e_data" required class="input-field">
                 </div>
             </div>
             
             <div class="flex justify-end gap-3 mt-6">
-                <button type="button" onclick="closeModal()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded transition">Cancelar</button>
+                <button type="button" onclick="closeModal()" class="bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded transition">Cancelar</button>
                 <button type="submit" id="btnSalvarE" class="btn-green px-4 py-2 rounded shadow font-bold">Criar Contrato</button>
             </div>
         </form>
@@ -100,7 +100,7 @@
                     <td>${new Date(e.data_emprestimo).toLocaleDateString('pt-BR')}</td>
                     <td>${formatter.format(e.valor_principal)}</td>
                     <td>${formatter.format(e.valor_total)}</td>
-                    <td><span class="${e.status === 'ATIVO' ? 'text-green-500' : 'text-gray-500'} font-bold">${e.status}</span></td>
+                    <td><span class="${e.status === 'ATIVO' ? 'text-green-600 dark:text-green-500' : 'text-gray-500'} font-bold">${e.status}</span></td>
                 `;
                 tbody.appendChild(tr);
             });

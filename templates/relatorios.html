@@ -2,18 +2,18 @@
 
 {% block content %}
 <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
-    <h1 class="text-2xl font-bold">Relatórios & Controle Mensal</h1>
+    <h1 class="text-2xl font-bold heading-text">Relatórios & Controle Mensal</h1>
 </div>
 
 <!-- Filters area -->
-<div class="bg-[#242424] p-4 rounded-lg shadow mb-6">
+<div class="card p-4 rounded-lg shadow mb-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         
         <!-- Left Side: Tipo e Mês/Ano -->
         <div class="flex flex-col gap-4">
             <div class="flex items-center gap-2">
-                <span class="text-gray-400 text-sm w-32">Tipo de Relatório:</span>
-                <select id="tipoRelatorio" class="bg-[#333] text-white border border-gray-600 rounded px-3 py-2 flex-grow" onchange="onTipoRelatorioChange()">
+                <span class="label-text text-sm w-32">Tipo de Relatório:</span>
+                <select id="tipoRelatorio" class="select-field w-full" onchange="onTipoRelatorioChange()">
                     <option value="Controle Mensal">Controle Mensal (Previsto vs. Realizado)</option>
                     <option value="Extrato do Cliente">Extrato do Cliente</option>
                     <option value="Inadimplência">Inadimplência</option>
@@ -21,8 +21,8 @@
                 </select>
             </div>
             <div class="flex items-center gap-2">
-                <span class="text-gray-400 text-sm w-32">Mês/Ano:</span>
-                <select id="mesSelect" class="bg-[#333] text-white border border-gray-600 rounded px-3 py-2 flex-grow">
+                <span class="label-text text-sm w-32">Mês/Ano:</span>
+                <select id="mesSelect" class="select-field w-full">
                     <option value="1">Janeiro</option>
                     <option value="2">Fevereiro</option>
                     <option value="3">Março</option>
@@ -36,22 +36,22 @@
                     <option value="11">Novembro</option>
                     <option value="12">Dezembro</option>
                 </select>
-                <input type="number" id="anoSelect" class="bg-[#333] text-white border border-gray-600 rounded px-3 py-2 w-24" value="2026">
+                <input type="number" id="anoSelect" class="input-field w-24" value="2026">
             </div>
         </div>
 
         <!-- Right Side: Cliente e Datas -->
         <div class="flex flex-col gap-4">
             <div class="flex items-center gap-2">
-                <span class="text-gray-400 text-sm w-20">Cliente:</span>
-                <select id="clienteSelect" class="bg-[#333] text-white border border-gray-600 rounded px-3 py-2 flex-grow" disabled>
+                <span class="label-text text-sm w-20">Cliente:</span>
+                <select id="clienteSelect" class="select-field w-full" disabled>
                     <option value="">Selecione o Cliente</option>
                 </select>
             </div>
             <div class="flex items-center gap-2">
-                <span class="text-gray-400 text-sm w-20">Início/Fim:</span>
-                <input type="date" id="dataInicio" class="bg-[#333] text-white border border-gray-600 rounded px-2 py-2 flex-grow" disabled>
-                <input type="date" id="dataFim" class="bg-[#333] text-white border border-gray-600 rounded px-2 py-2 flex-grow" disabled>
+                <span class="label-text text-sm w-20">Início/Fim:</span>
+                <input type="date" id="dataInicio" class="input-field w-full" disabled>
+                <input type="date" id="dataFim" class="input-field w-full" disabled>
             </div>
         </div>
     </div>
@@ -65,43 +65,43 @@
 
 <!-- KPIs Mensal (Só visível no Controle Mensal) -->
 <div id="kpisContainer" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-    <div class="bg-[#242424] p-4 rounded border border-blue-500 shadow flex flex-col items-center text-center">
-        <h3 class="text-gray-400 text-sm"><i class="fa-solid fa-thumbtack text-xs mr-1"></i>Previsto no Mês</h3>
+    <div class="card p-4 rounded border border-blue-500 shadow flex flex-col items-center text-center">
+        <h3 class="label-text text-sm"><i class="fa-solid fa-thumbtack text-xs mr-1"></i>Previsto no Mês</h3>
         <p class="text-xl font-bold mt-1 text-blue-400" id="kpiPrevisto">R$ 0,00</p>
     </div>
-    <div class="bg-[#242424] p-4 rounded border border-green-500 shadow flex flex-col items-center text-center">
-        <h3 class="text-gray-400 text-sm"><i class="fa-solid fa-sack-dollar text-xs mr-1"></i>Realizado no Mês</h3>
+    <div class="card p-4 rounded border border-green-500 shadow flex flex-col items-center text-center">
+        <h3 class="label-text text-sm"><i class="fa-solid fa-sack-dollar text-xs mr-1"></i>Realizado no Mês</h3>
         <p class="text-xl font-bold mt-1 text-green-400" id="kpiRealizado">R$ 0,00</p>
     </div>
-    <div class="bg-[#242424] p-4 rounded border border-purple-500 shadow flex flex-col items-center text-center">
-        <h3 class="text-gray-400 text-sm"><i class="fa-solid fa-chart-line text-xs mr-1"></i>Eficiência Cobrança</h3>
+    <div class="card p-4 rounded border border-purple-500 shadow flex flex-col items-center text-center">
+        <h3 class="label-text text-sm"><i class="fa-solid fa-chart-line text-xs mr-1"></i>Eficiência Cobrança</h3>
         <p class="text-xl font-bold mt-1 text-purple-400" id="kpiEficiencia">0.0%</p>
     </div>
-    <div class="bg-[#242424] p-4 rounded border border-red-500 shadow flex flex-col items-center text-center">
-        <h3 class="text-gray-400 text-sm"><i class="fa-solid fa-triangle-exclamation text-xs mr-1"></i>Inadimplência Mês</h3>
+    <div class="card p-4 rounded border border-red-500 shadow flex flex-col items-center text-center">
+        <h3 class="label-text text-sm"><i class="fa-solid fa-triangle-exclamation text-xs mr-1"></i>Inadimplência Mês</h3>
         <p class="text-xl font-bold mt-1 text-red-500" id="kpiInad">R$ 0,00</p>
     </div>
-    <div class="bg-[#242424] p-4 rounded border border-orange-500 shadow flex flex-col items-center text-center">
-        <h3 class="text-gray-400 text-sm"><i class="fa-solid fa-coins text-xs mr-1"></i>Lucro Bruto Juros/Taxas</h3>
+    <div class="card p-4 rounded border border-orange-500 shadow flex flex-col items-center text-center">
+        <h3 class="label-text text-sm"><i class="fa-solid fa-coins text-xs mr-1"></i>Lucro Bruto Juros/Taxas</h3>
         <p class="text-xl font-bold mt-1 text-orange-400" id="kpiLucro">R$ 0,00</p>
     </div>
 </div>
 
 <!-- Tabela para Controle Mensal / Inadimplência / Fluxo -->
-<div id="tableContainer" class="bg-white rounded-lg shadow overflow-x-auto text-black p-2 min-h-[300px]">
+<div id="tableContainer" class="card rounded-lg shadow overflow-x-auto p-2 min-h-[300px]">
     <table class="w-full text-left text-sm" id="relatorioTable">
-        <thead class="bg-gray-100 font-bold border-b border-gray-300" id="tableHead">
+        <thead class="bg-gray-100 dark:bg-gray-800 font-bold border-b border-gray-300 dark:border-gray-600" id="tableHead">
             <!-- Table Head Dinamico -->
         </thead>
-        <tbody id="tabelaRelatorio" class="divide-y divide-gray-200">
+        <tbody id="tabelaRelatorio" class="divide-y divide-gray-200 dark:divide-gray-700">
             <!-- Dados -->
         </tbody>
     </table>
 </div>
 
 <!-- Text Area para Extrato do Cliente -->
-<div id="textContainer" class="hidden bg-white rounded-lg shadow p-4 min-h-[300px]">
-    <textarea id="textRelatorio" class="w-full h-96 bg-white text-black font-mono text-sm border-none focus:ring-0 resize-none" readonly></textarea>
+<div id="textContainer" class="hidden card rounded-lg shadow p-4 min-h-[300px]">
+    <textarea id="textRelatorio" class="w-full h-96 bg-transparent heading-text font-mono text-sm border-none focus:ring-0 resize-none" readonly></textarea>
 </div>
 
 <script>
