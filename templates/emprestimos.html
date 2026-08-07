@@ -47,12 +47,8 @@
                     <label class="block text-sm mb-1 text-gray-300">Taxa Juros (%)</label>
                     <input type="number" id="e_taxa" step="0.1" required class="input-dark">
                 </div>
-                <div>
-                    <label class="block text-sm mb-1 text-gray-300">Nº Parcelas</label>
-                    <input type="number" id="e_parcelas" min="1" max="120" required class="input-dark">
-                </div>
-                <div>
-                    <label class="block text-sm mb-1 text-gray-300">Data Base</label>
+                <div class="col-span-2">
+                    <label class="block text-sm mb-1 text-gray-300">Data de Vencimento</label>
                     <input type="date" id="e_data" required class="input-dark">
                 </div>
             </div>
@@ -121,10 +117,9 @@
         
         const payload = {
             cliente_id: parseInt(document.getElementById('e_cliente').value),
-            valor_principal: parseFloat(document.getElementById('e_valor').value),
-            taxa_juros_mensal: parseFloat(document.getElementById('e_taxa').value),
-            numero_parcelas: parseInt(document.getElementById('e_parcelas').value),
-            data_emprestimo: document.getElementById('e_data').value
+            valor_solicitado: parseFloat(document.getElementById('e_valor').value),
+            taxa_juros: parseFloat(document.getElementById('e_taxa').value),
+            data_vencimento: document.getElementById('e_data').value
         };
         
         try {
@@ -136,7 +131,11 @@
             closeModal();
             loadEmprestimos();
         } catch (error) {
-            Swal.fire('Erro', error.message, 'error');
+            let msg = error.message || 'Erro desconhecido';
+            if (typeof error === 'object' && error.detail) {
+                msg = Array.isArray(error.detail) ? error.detail.map(e => e.msg || JSON.stringify(e)).join('\n') : error.detail;
+            }
+            Swal.fire('Erro', msg, 'error');
         } finally {
             btn.disabled = false;
             btn.innerText = "Criar Contrato";
