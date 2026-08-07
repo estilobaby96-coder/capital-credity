@@ -16,16 +16,7 @@ else:
     os.makedirs(db_dir, exist_ok=True)
     db_path = os.path.join(db_dir, "neto_gestor.db")
 
-# POSTGRES_URL é usada pelo Vercel Postgres
-cloud_db_url = os.getenv("POSTGRES_URL") or os.getenv("DATABASE_URL")
-
-if cloud_db_url:
-    # SQLAlchemy requires postgresql:// instead of postgres://
-    if cloud_db_url.startswith("postgres://"):
-        cloud_db_url = cloud_db_url.replace("postgres://", "postgresql://", 1)
-    db_url = cloud_db_url
-else:
-    db_url = os.getenv("DB_URL", "postgresql+psycopg2://neondb_owner:npg_jyOR1Ae9HKJM@ep-divine-pine-ac71arap-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require")
+db_url = "postgresql+psycopg2://neondb_owner:npg_jyOR1Ae9HKJM@ep-divine-pine-ac71arap-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require"
 
 # Cria o engine
 engine = create_engine(
