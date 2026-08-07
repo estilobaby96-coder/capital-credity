@@ -78,7 +78,7 @@
                 if (isAtrasada && p.cliente_whatsapp) {
                     const numeroLimpo = p.cliente_whatsapp.replace(/\D/g, '');
                     const numeroComDDI = numeroLimpo.startsWith('55') ? numeroLimpo : '55' + numeroLimpo;
-                    const mensagem = encodeURIComponent(`Olá, ${p.cliente}. Notamos que a parcela ${p.parcela_num} do seu contrato ${p.numero_contrato} com vencimento em ${dataFormatada} encontra-se em aberto. O valor atualizado é de ${formatter.format(p.valor_atualizado)}. Caso já tenha efetuado o pagamento, por favor desconsidere esta mensagem. Atenciosamente, Capital Credity.`);
+                    const mensagem = encodeURIComponent(`Olá, *${p.cliente}*! 👋\n\nNotamos que a parcela *${p.parcela_num}* do seu contrato *${p.numero_contrato}*, com vencimento em *${dataFormatada}*, encontra-se em aberto. 🗓️\n\nO valor atualizado (com juros e multa) é de *${formatter.format(p.valor_atualizado)}*. 💰\n\nCaso já tenha efetuado o pagamento, por favor, desconsidere esta mensagem. 🙏\n\nQualquer dúvida, estamos à disposição! 🤝\n\nAtenciosamente,\n🏢 *Capital Credity*`);
                     
                     acoesHtml += `
                         <a href="https://api.whatsapp.com/send?phone=${numeroComDDI}&text=${mensagem}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs transition whitespace-nowrap">
