@@ -20,17 +20,22 @@ cliente_service = ClienteService()
 @router.get("/")
 def listar_clientes(db: Session = Depends(get_session)):
     clientes = cliente_service.get_all(db)
-    # Convert models to dict for JSON serialization
-    return [
-        {
+    
+    result = []
+    for c in clientes:
+        # Calcular metricas reais do cliente para pegar o nivel (score)
+        metrics = cliente_service.get_cliente_metrics(db, c.id)
+        nivel_score = metrics.get("nivel", "Bronze")
+        
+        result.append({
             "id": c.id,
             "nome": c.nome,
             "cpf": c.cpf,
             "telefone": c.telefone,
-            "nivel_score": "Prata" # Stub para evitar erro, caso seja calculado
-        }
-        for c in clientes
-    ]
+            "nivel_score": nivel_score
+        })
+        
+    return result
 
 @router.post("/")
 def criar_cliente(cliente: ClienteCreate, db: Session = Depends(get_session)):
