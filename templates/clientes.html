@@ -35,11 +35,11 @@
                 </div>
                 <div>
                     <label class="block text-sm mb-1 label-text">CPF</label>
-                    <input type="text" id="c_cpf" required class="input-field" maxlength="14" oninput="mascaraCPF(this)" placeholder="000.000.000-00">
+                    <input type="text" id="c_cpf" required class="input-field" inputmode="numeric" maxlength="14" oninput="mascaraCPF(this)" placeholder="000.000.000-00">
                 </div>
                 <div>
                     <label class="block text-sm mb-1 label-text">Telefone</label>
-                    <input type="text" id="c_telefone" required class="input-field" oninput="mascaraTelefone(this)" maxlength="15" placeholder="(00) 00000-0000">
+                    <input type="text" id="c_telefone" required class="input-field" inputmode="numeric" oninput="mascaraTelefone(this)" maxlength="15" placeholder="(00) 00000-0000">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-sm mb-1 label-text">E-mail</label>
@@ -47,7 +47,7 @@
                 </div>
                 <div>
                     <label class="block text-sm mb-1 label-text">CEP</label>
-                    <input type="text" id="c_cep" class="input-field" onblur="buscarCEP()" maxlength="9" oninput="mascaraCEP(this)" placeholder="00000-000">
+                    <input type="text" id="c_cep" class="input-field" inputmode="numeric" onblur="buscarCEP()" maxlength="9" oninput="mascaraCEP(this)" placeholder="00000-000">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-sm mb-1 label-text">Endereço Completo</label>
