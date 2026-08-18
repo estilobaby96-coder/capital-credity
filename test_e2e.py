@@ -1,12 +1,9 @@
-import os
 import sys
 from datetime import date, timedelta
 from database.connection import SessionLocal
 from models.cliente import Cliente
-from models.emprestimo import Emprestimo
 from models.parcela import Parcela
 from models.movimentacao import Movimentacao
-from models.recebimento import Recebimento
 
 from services.cliente_service import ClienteService
 from services.emprestimo_service import EmprestimoService
@@ -48,20 +45,19 @@ def run_tests():
         assert novo_cliente.id is not None, "Falha ao criar cliente."
 
         # 3. Testar Criação de Empréstimo
-        print("Testando Criacao de Emprestimo (1000 reais, 10%, 5 parcelas)...")
+        print("Testando Criacao de Emprestimo (1000 reais, 10%)...")
         emp = emp_service.create_loan(
             db=db,
             cliente_id=novo_cliente.id,
             valor_solicitado=1000.0,
             taxa_juros=10.0,
-            qtd_parcelas=5,
-            data_inicio=date.today()
+            data_vencimento=date.today() + timedelta(days=30)
         )
         assert emp.id is not None, "Falha ao criar empréstimo."
         
         # Validar parcelas geradas
         parcelas = db.query(Parcela).filter(Parcela.emprestimo_id == emp.id).all()
-        assert len(parcelas) == 5, "Falha: o sistema não gerou 5 parcelas."
+        assert len(parcelas) == 1, "Falha: o sistema não gerou 1 parcela."
         
         # 4. Testar Recebimento (Baixa de Parcela)
         print("Testando Pagamento de Parcela (Baixa)...")

@@ -12,17 +12,16 @@
     <table class="w-full table-theme text-sm">
         <thead>
             <tr>
-                <th>Nº Contrato</th>
-
-                <th>Data</th>
-                <th>Valor Solicitado</th>
-                <th>Valor Total</th>
-                <th>Status</th>
+                <th class="text-center">Nº Contrato</th>
+                <th class="text-center">Cliente</th>
+                <th class="text-center">Data</th>
+                <th class="text-center">Valor Solicitado</th>
+                <th class="text-center">Valor Total</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Ações</th>
             </tr>
         </thead>
-        <tbody id="emprestimosTableBody">
-            <!-- Populado via JS -->
-        </tbody>
+        <tbody id="emprestimosTableBody"></tbody>
     </table>
 </div>
 
@@ -30,7 +29,6 @@
 <div id="modalEmprestimo" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
     <div class="modal-bg p-4 md:p-6 rounded-lg shadow-xl w-full max-w-lg max-h-full overflow-y-auto">
         <h2 class="text-xl font-bold mb-4 heading-text">Novo Empréstimo</h2>
-        
         <form id="formEmprestimo" onsubmit="saveEmprestimo(event)">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div class="col-span-2">
@@ -52,7 +50,6 @@
                     <input type="date" id="e_data" required class="input-field">
                 </div>
             </div>
-            
             <div class="flex flex-col-reverse md:flex-row justify-end gap-3 mt-6">
                 <button type="button" onclick="closeModal()" class="bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded transition w-full md:w-auto">Cancelar</button>
                 <button type="submit" id="btnSalvarE" class="btn-green px-4 py-2 rounded shadow font-bold w-full md:w-auto">Criar Contrato</button>
@@ -61,20 +58,48 @@
     </div>
 </div>
 
+<!-- Modal Editar Empréstimo -->
+<div id="modalEditarEmprestimo" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <div class="modal-bg p-4 md:p-6 rounded-lg shadow-xl w-full max-w-lg max-h-full overflow-y-auto">
+        <h2 class="text-xl font-bold mb-4 heading-text">Editar Empréstimo</h2>
+        <form id="formEditarEmprestimo" onsubmit="updateEmprestimo(event)">
+            <input type="hidden" id="edit_id" value="">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm mb-1 label-text">Valor (R$)</label>
+                    <input type="number" id="edit_valor" step="0.01" required class="input-field">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1 label-text">Taxa Juros (%)</label>
+                    <input type="number" id="edit_taxa" step="0.1" required class="input-field">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-sm mb-1 label-text">Data de Vencimento</label>
+                    <input type="date" id="edit_data" required class="input-field">
+                </div>
+            </div>
+            <div class="flex flex-col-reverse md:flex-row justify-end gap-3 mt-6">
+                <button type="button" onclick="closeEditModal()" class="bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded transition w-full md:w-auto">Cancelar</button>
+                <button type="submit" id="btnEditarE" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded shadow font-bold w-full md:w-auto">Salvar Alterações</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+    const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
     function openModal() {
         document.getElementById('modalEmprestimo').classList.remove('hidden');
         document.getElementById('modalEmprestimo').classList.add('flex');
-        
-        // Puxa lista de clientes para o select
         fetchAPI('/clientes/').then(clientes => {
+            clientes.sort((a, b) => a.nome.localeCompare(b.nome));
             const select = document.getElementById('e_cliente');
             select.innerHTML = '<option value="">Selecione...</option>';
             clientes.forEach(c => {
                 select.innerHTML += `<option value="${c.id}">${c.nome} (CPF: ${formatarCPF(c.cpf)})</option>`;
             });
         });
-        
         document.getElementById('e_data').valueAsDate = new Date();
     }
     
@@ -84,61 +109,121 @@
         document.getElementById('formEmprestimo').reset();
     }
 
+    function openEditModal(empId, valor, taxa, dataVenc) {
+        document.getElementById('modalEditarEmprestimo').classList.remove('hidden');
+        document.getElementById('modalEditarEmprestimo').classList.add('flex');
+        document.getElementById('edit_id').value = empId;
+        document.getElementById('edit_valor').value = valor;
+        document.getElementById('edit_taxa').value = taxa;
+        document.getElementById('edit_data').value = dataVenc;
+    }
+
+    function closeEditModal() {
+        document.getElementById('modalEditarEmprestimo').classList.add('hidden');
+        document.getElementById('modalEditarEmprestimo').classList.remove('flex');
+        document.getElementById('formEditarEmprestimo').reset();
+    }
+
+    function getStatusClass(status) {
+        switch(status) {
+            case 'ATIVO': return 'text-green-600 dark:text-green-500';
+            case 'QUITADO': return 'text-blue-600 dark:text-blue-400';
+            case 'CANCELADO': return 'text-red-600 dark:text-red-400';
+            default: return 'text-gray-500';
+        }
+    }
+
     async function loadEmprestimos() {
         try {
             const data = await fetchAPI('/emprestimos/');
             const tbody = document.getElementById('emprestimosTableBody');
             tbody.innerHTML = '';
             
-            const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-            
             data.forEach(e => {
                 const tr = document.createElement('tr');
+                const dataFormatada = new Date(e.data_emprestimo).toLocaleDateString('pt-BR');
+                const isAtivo = e.status === 'ATIVO';
+                
                 tr.innerHTML = `
-                    <td>${e.numero_contrato}</td>
-
-                    <td>${new Date(e.data_emprestimo).toLocaleDateString('pt-BR')}</td>
-                    <td>${formatter.format(e.valor_principal)}</td>
-                    <td>${formatter.format(e.valor_total)}</td>
-                    <td><span class="${e.status === 'ATIVO' ? 'text-green-600 dark:text-green-500' : 'text-gray-500'} font-bold">${e.status}</span></td>
+                    <td class="text-center">${e.numero_contrato}</td>
+                    <td class="text-center">${e.cliente_nome || '-'}</td>
+                    <td class="text-center">${dataFormatada}</td>
+                    <td class="text-center">${formatter.format(e.valor_principal)}</td>
+                    <td class="text-center">${formatter.format(e.valor_total)}</td>
+                    <td class="text-center"><span class="${getStatusClass(e.status)} font-bold">${e.status}</span></td>
+                    <td class="flex justify-center gap-2 flex-wrap text-center">
+                        ${isAtivo ? `
+                            <button onclick="openEditModal(${e.id}, ${e.valor_principal}, ${e.taxa_juros || 0}, '${e.data_vencimento || ''}')" class="text-yellow-500 hover:text-yellow-400" title="Editar">✏️ Editar</button>
+                            <button onclick="cancelarContrato(${e.id}, '${e.numero_contrato}')" class="text-red-500 hover:text-red-400" title="Cancelar">❌ Cancelar</button>
+                        ` : `<span class="text-gray-400 text-xs">—</span>`}
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
-        } catch (error) {
-            console.error(error);
-        }
+        } catch (error) { console.error(error); }
     }
 
     async function saveEmprestimo(e) {
         e.preventDefault();
         const btn = document.getElementById('btnSalvarE');
-        btn.disabled = true;
-        btn.innerText = "Criando...";
-        
+        btn.disabled = true; btn.innerText = "Criando...";
         const payload = {
             cliente_id: parseInt(document.getElementById('e_cliente').value),
             valor_solicitado: parseFloat(document.getElementById('e_valor').value),
             taxa_juros: parseFloat(document.getElementById('e_taxa').value),
             data_vencimento: document.getElementById('e_data').value
         };
-        
         try {
-            await fetchAPI('/emprestimos/', {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
+            await fetchAPI('/emprestimos/', { method: 'POST', body: JSON.stringify(payload) });
             Swal.fire('Sucesso', 'Empréstimo criado com sucesso!', 'success');
-            closeModal();
-            loadEmprestimos();
+            closeModal(); loadEmprestimos();
         } catch (error) {
             let msg = error.message || 'Erro desconhecido';
             if (typeof error === 'object' && error.detail) {
                 msg = Array.isArray(error.detail) ? error.detail.map(e => e.msg || JSON.stringify(e)).join('\n') : error.detail;
             }
             Swal.fire('Erro', msg, 'error');
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "Criar Contrato";
+        } finally { btn.disabled = false; btn.innerText = "Criar Contrato"; }
+    }
+
+    async function updateEmprestimo(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnEditarE');
+        btn.disabled = true; btn.innerText = "Salvando...";
+        const empId = document.getElementById('edit_id').value;
+        const payload = {
+            valor_solicitado: parseFloat(document.getElementById('edit_valor').value),
+            taxa_juros: parseFloat(document.getElementById('edit_taxa').value),
+            data_vencimento: document.getElementById('edit_data').value
+        };
+        try {
+            await fetchAPI(`/emprestimos/${empId}`, { method: 'PUT', body: JSON.stringify(payload) });
+            Swal.fire('Sucesso', 'Empréstimo atualizado com sucesso!', 'success');
+            closeEditModal(); loadEmprestimos();
+        } catch (error) {
+            Swal.fire('Erro', error.message || 'Erro ao atualizar empréstimo.', 'error');
+        } finally { btn.disabled = false; btn.innerText = "Salvar Alterações"; }
+    }
+
+    async function cancelarContrato(empId, numContrato) {
+        const result = await Swal.fire({
+            title: 'Cancelar Contrato?',
+            html: `Tem certeza que deseja cancelar o contrato <b>${numContrato}</b>?<br><br><span class="text-red-500 text-sm">Essa ação não pode ser desfeita. Todas as parcelas pendentes serão canceladas.</span>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Sim, cancelar contrato!',
+            cancelButtonText: 'Não'
+        });
+        if (result.isConfirmed) {
+            try {
+                await fetchAPI(`/emprestimos/${empId}/cancelar`, { method: 'POST' });
+                Swal.fire('Cancelado!', `O contrato ${numContrato} foi cancelado com sucesso.`, 'success');
+                loadEmprestimos();
+            } catch (error) {
+                Swal.fire('Erro', error.message || 'Erro ao cancelar contrato.', 'error');
+            }
         }
     }
 

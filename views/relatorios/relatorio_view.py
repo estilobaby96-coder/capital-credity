@@ -7,7 +7,7 @@ from database.connection import SessionLocal
 from services.relatorio_service import RelatorioService
 from services.cliente_service import ClienteService
 from services.export_service import ExportService
-from config.settings import COLOR_PRIMARY, COLOR_SURFACE, COLOR_TEXT_SECONDARY, FONT_SIZE_H1, FONT_SIZE_BODY
+from config.settings import COLOR_SURFACE, FONT_SIZE_H1
 
 
 TIPOS_RELATORIO = [

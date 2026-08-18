@@ -3,12 +3,13 @@ from sqlalchemy.orm import Session
 
 from database.connection import get_session
 from services.dashboard_service import DashboardService
+from api.security import get_current_user
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 dashboard_service = DashboardService()
 
 @router.get("/resumo")
-def get_resumo(db: Session = Depends(get_session)):
+def get_resumo(db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
     try:
         metrics = dashboard_service.get_metrics(db)
         return metrics
@@ -16,7 +17,7 @@ def get_resumo(db: Session = Depends(get_session)):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/proximas_parcelas")
-def get_proximas_parcelas(limite: int = 10, db: Session = Depends(get_session)):
+def get_proximas_parcelas(limite: int = 10, db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
     try:
         parcelas = dashboard_service.get_proximas_parcelas(db, limite=limite)
         return [

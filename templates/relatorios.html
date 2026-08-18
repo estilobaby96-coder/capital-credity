@@ -56,39 +56,43 @@
         </div>
     </div>
 
-    <div class="mt-4 flex justify-end">
+    <div class="mt-4 flex justify-end gap-2">
+        <button id="btnPdf" onclick="baixarPDF()" class="btn border border-gray-300 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700 bg-transparent text-gray-700 dark:text-gray-200 font-bold px-6 py-2 rounded w-full md:w-auto">
+            <i class="fa-solid fa-file-pdf text-red-500 mr-2"></i>Baixar PDF
+        </button>
         <button onclick="carregarRelatorio()" class="bg-brand-green hover:bg-green-600 text-white font-bold px-6 py-2 rounded w-full md:w-auto">
             Gerar Relatório
         </button>
     </div>
 </div>
 
-<!-- KPIs Mensal (Só visível no Controle Mensal) -->
-<div id="kpisContainer" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-    <div class="card p-4 rounded border border-blue-500 shadow flex flex-col items-center text-center">
-        <h3 class="label-text text-sm"><i class="fa-solid fa-thumbtack text-xs mr-1"></i>Previsto no Mês</h3>
-        <p class="text-xl font-bold mt-1 text-blue-400" id="kpiPrevisto">R$ 0,00</p>
+<div id="printArea">
+    <!-- KPIs Mensal (Só visível no Controle Mensal) -->
+    <div id="kpisContainer" class="hidden grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div class="card p-4 rounded border border-blue-500 shadow flex flex-col items-center text-center">
+            <h3 class="label-text text-sm"><i class="fa-solid fa-thumbtack text-xs mr-1"></i>Previsto no Mês</h3>
+            <p class="text-xl font-bold mt-1 text-blue-400" id="kpiPrevisto">R$ 0,00</p>
+        </div>
+        <div class="card p-4 rounded border border-green-500 shadow flex flex-col items-center text-center">
+            <h3 class="label-text text-sm"><i class="fa-solid fa-sack-dollar text-xs mr-1"></i>Realizado no Mês</h3>
+            <p class="text-xl font-bold mt-1 text-green-400" id="kpiRealizado">R$ 0,00</p>
+        </div>
+        <div class="card p-4 rounded border border-purple-500 shadow flex flex-col items-center text-center">
+            <h3 class="label-text text-sm"><i class="fa-solid fa-chart-line text-xs mr-1"></i>Eficiência Cobrança</h3>
+            <p class="text-xl font-bold mt-1 text-purple-400" id="kpiEficiencia">0.0%</p>
+        </div>
+        <div class="card p-4 rounded border border-red-500 shadow flex flex-col items-center text-center">
+            <h3 class="label-text text-sm"><i class="fa-solid fa-triangle-exclamation text-xs mr-1"></i>Inadimplência Mês</h3>
+            <p class="text-xl font-bold mt-1 text-red-500" id="kpiInad">R$ 0,00</p>
+        </div>
+        <div class="card p-4 rounded border border-orange-500 shadow flex flex-col items-center text-center">
+            <h3 class="label-text text-sm"><i class="fa-solid fa-coins text-xs mr-1"></i>Lucro Bruto Juros/Taxas</h3>
+            <p class="text-xl font-bold mt-1 text-orange-400" id="kpiLucro">R$ 0,00</p>
+        </div>
     </div>
-    <div class="card p-4 rounded border border-green-500 shadow flex flex-col items-center text-center">
-        <h3 class="label-text text-sm"><i class="fa-solid fa-sack-dollar text-xs mr-1"></i>Realizado no Mês</h3>
-        <p class="text-xl font-bold mt-1 text-green-400" id="kpiRealizado">R$ 0,00</p>
-    </div>
-    <div class="card p-4 rounded border border-purple-500 shadow flex flex-col items-center text-center">
-        <h3 class="label-text text-sm"><i class="fa-solid fa-chart-line text-xs mr-1"></i>Eficiência Cobrança</h3>
-        <p class="text-xl font-bold mt-1 text-purple-400" id="kpiEficiencia">0.0%</p>
-    </div>
-    <div class="card p-4 rounded border border-red-500 shadow flex flex-col items-center text-center">
-        <h3 class="label-text text-sm"><i class="fa-solid fa-triangle-exclamation text-xs mr-1"></i>Inadimplência Mês</h3>
-        <p class="text-xl font-bold mt-1 text-red-500" id="kpiInad">R$ 0,00</p>
-    </div>
-    <div class="card p-4 rounded border border-orange-500 shadow flex flex-col items-center text-center">
-        <h3 class="label-text text-sm"><i class="fa-solid fa-coins text-xs mr-1"></i>Lucro Bruto Juros/Taxas</h3>
-        <p class="text-xl font-bold mt-1 text-orange-400" id="kpiLucro">R$ 0,00</p>
-    </div>
-</div>
 
 <!-- Tabela para Controle Mensal / Inadimplência / Fluxo -->
-<div id="tableContainer" class="card rounded-lg shadow overflow-x-auto p-2 min-h-[300px]">
+<div id="tableContainer" class="card rounded-lg shadow overflow-x-auto p-2">
     <table class="w-full text-center text-sm" id="relatorioTable">
         <thead class="bg-gray-100 dark:bg-gray-800 font-bold border-b border-gray-300 dark:border-gray-600" id="tableHead">
             <!-- Table Head Dinamico -->
@@ -99,11 +103,41 @@
     </table>
 </div>
 
-<!-- Text Area para Extrato do Cliente -->
-<div id="textContainer" class="hidden card rounded-lg shadow p-4 min-h-[300px]">
-    <textarea id="textRelatorio" class="w-full h-96 bg-transparent heading-text font-mono text-sm border-none focus:ring-0 resize-none" readonly></textarea>
+<!-- Container para Extrato do Cliente -->
+<div id="textContainer" class="hidden">
+    <!-- Extrato vai ser gerado aqui dentro em HTML -->
 </div>
 
+<!-- Rodapé do Inadimplência -->
+<div id="inadimplenciaFooter" class="hidden mt-8" style="page-break-inside: avoid;">
+    <div style="padding: 24px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+        <div style="display: table; width: 100%;">
+            <div style="display: table-cell; vertical-align: middle; padding-right: 20px;">
+                <h4 style="font-size: 18px; font-weight: bold; color: #1e293b; margin-top: 0; margin-bottom: 12px;">
+                    <i class="fa-solid fa-circle-exclamation" style="color:#f59e0b; margin-right: 8px;"></i>
+                    Informações sobre Juros e Multa
+                </h4>
+                <p style="font-size: 14px; color: #475569; line-height: 1.5; margin-top: 0; margin-bottom: 16px;">
+                    Os valores apresentados na coluna <strong>Total Atualizado</strong> já englobam a soma do Valor Original acrescido de <strong>Multa de R$ 1,00 por dia de atraso</strong> e <strong>Juros de 2%</strong> sobre o valor total a pagar, conforme previsto em contrato.
+                </p>
+                <div style="background-color: #ecfdf5; border: 1px solid #6ee7b7; padding: 16px 20px; border-radius: 8px;">
+                    <div style="font-size: 12px; color: #047857; font-weight: bold; margin-bottom: 4px;">PARA QUITAR O TOTAL ATUALIZADO, PAGUE VIA PIX:</div>
+                    <div style="font-size: 22px; font-weight: bold; color: #065f46;">pauloonee@hotmail.com</div>
+                </div>
+            </div>
+            <div style="display: table-cell; vertical-align: middle; width: 100px; text-align: center; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px;">
+                <div style="color: #32bcad; font-size: 48px; font-weight: bold; font-family: sans-serif; line-height: 1;">
+                    <i class="fa-brands fa-pix"></i>
+                </div>
+                <div style="color: #32bcad; font-size: 14px; font-weight: bold; margin-top: 8px;">PIX</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div> <!-- End printArea -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
     const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
     
@@ -125,7 +159,7 @@
             clientes.forEach(c => {
                 let opt = document.createElement('option');
                 opt.value = c.id;
-                opt.innerText = `${c.id} - ${c.nome}`;
+                opt.innerText = c.nome;
                 sel.appendChild(opt);
             });
         } catch(e) {
@@ -151,20 +185,24 @@
         dataInicio.disabled = true;
         dataFim.disabled = true;
         kpisContainer.classList.add('hidden');
-        tableContainer.classList.remove('hidden');
+        tableContainer.classList.add('hidden');
         textContainer.classList.add('hidden');
+        document.getElementById('inadimplenciaFooter').classList.add('hidden');
 
-        if(tipo === 'Controle Mensal') {
+        if(tipo === 'Controle Mensal (Previsto vs. Realizado)' || tipo === 'Controle Mensal') {
             mesSelect.disabled = false;
             anoSelect.disabled = false;
-            kpisContainer.classList.remove('hidden');
-            kpisContainer.classList.add('grid'); // restore grid layout
+            if(kpisContainer) {
+                kpisContainer.classList.remove('hidden');
+                kpisContainer.classList.add('grid'); // restore grid layout
+            }
             tableContainer.classList.remove('hidden');
         } else if (tipo === 'Extrato do Cliente') {
             clienteSelect.disabled = false;
             textContainer.classList.remove('hidden');
         } else if (tipo === 'Inadimplência') {
             tableContainer.classList.remove('hidden');
+            document.getElementById('inadimplenciaFooter').classList.remove('hidden');
         } else if (tipo === 'Fluxo de Caixa') {
             dataInicio.disabled = false;
             dataFim.disabled = false;
@@ -251,18 +289,20 @@
                 <th class="px-4 py-2 text-center">Contrato</th>
                 <th class="px-4 py-2 text-center">Parc.</th>
                 <th class="px-4 py-2 text-center">Vencimento</th>
-                <th class="px-4 py-2 text-center">Valor</th>
+                <th class="px-4 py-2 text-center">Valor Orig.</th>
+                <th class="px-4 py-2 text-center text-orange-500">Juros/Multa</th>
+                <th class="px-4 py-2 text-center">Total Atualizado</th>
                 <th class="px-4 py-2 text-center">Dias Atraso</th>
             </tr>
         `;
-        tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center">Carregando...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-4 text-center">Carregando...</td></tr>';
         
         try {
             const data = await fetchAPI(`/relatorios/inadimplencia`);
             tbody.innerHTML = '';
             
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center">Nenhum cliente inadimplente.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-4 text-center">Nenhum cliente inadimplente.</td></tr>';
                 return;
             }
             
@@ -274,13 +314,16 @@
                     <td class="px-4 py-2 text-center">${r.numero_contrato}</td>
                     <td class="px-4 py-2 text-center">${r.parcela_num}</td>
                     <td class="px-4 py-2 text-center text-red-600">${formatarDataBR(r.vencimento)}</td>
+                    <td class="px-4 py-2 text-center">${formatter.format(r.valor_original)}</td>
+                    <td class="px-4 py-2 text-center font-semibold text-orange-500">${formatter.format(r.juros_mora + r.multa)}</td>
                     <td class="px-4 py-2 text-center font-bold">${formatter.format(r.valor)}</td>
                     <td class="px-4 py-2 text-center font-bold text-red-600">${r.dias_atraso}</td>
                 `;
                 tbody.appendChild(tr);
             });
+
         } catch (e) {
-            tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center text-red-500">Erro ao carregar inadimplência.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-4 text-center text-red-500">Erro ao carregar inadimplência.</td></tr>';
         }
     }
 
@@ -341,47 +384,206 @@
             return;
         }
 
-        const textArea = document.getElementById('textRelatorio');
-        textArea.value = "Gerando Extrato do Cliente...";
+        const container = document.getElementById('textContainer');
+        container.innerHTML = '<div class="flex justify-center items-center h-64"><span class="loading loading-spinner loading-lg text-primary"></span></div>';
 
         try {
             const data = await fetchAPI(`/relatorios/extrato/${cliente_id}`);
-            let text = `-------------------------------------------------\n`;
-            text += ` EXTRATO DO CLIENTE \n`;
-            text += `-------------------------------------------------\n\n`;
-            text += ` NOME    : ${data.cliente.nome}\n`;
-            text += ` CPF     : ${formatarCPF(data.cliente.cpf)}\n`;
-            text += ` TELEFONE: ${data.cliente.telefone}\n\n`;
+            
+            let html = `
+                <div class="card bg-base-100 shadow-sm border border-base-200 mb-6">
+                    <div class="card-body p-6">
+                        <div class="flex items-center justify-between border-b border-base-200 pb-4 mb-4">
+                            <div>
+                                <h2 class="card-title text-2xl font-bold"><i class="fa-solid fa-file-invoice-dollar text-primary mr-2"></i> Extrato do Cliente</h2>
+                                <p class="text-sm opacity-70">Detalhes completos de empréstimos e parcelas</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                            <div class="bg-base-200/50 p-4 rounded-xl border border-base-200">
+                                <span class="text-xs font-bold opacity-50 uppercase tracking-wider"><i class="fa-solid fa-user mr-1"></i> Nome</span>
+                                <p class="font-bold text-lg mt-1">${data.cliente.nome}</p>
+                            </div>
+                            <div class="bg-base-200/50 p-4 rounded-xl border border-base-200">
+                                <span class="text-xs font-bold opacity-50 uppercase tracking-wider"><i class="fa-solid fa-id-card mr-1"></i> CPF</span>
+                                <p class="font-bold text-lg mt-1">${formatarCPF(data.cliente.cpf)}</p>
+                            </div>
+                            <div class="bg-base-200/50 p-4 rounded-xl border border-base-200">
+                                <span class="text-xs font-bold opacity-50 uppercase tracking-wider"><i class="fa-solid fa-phone mr-1"></i> Telefone</span>
+                                <p class="font-bold text-lg mt-1">${data.cliente.telefone}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
             
             if (data.emprestimos.length === 0) {
-                text += ` Nenhum empréstimo registrado.\n`;
+                html += `
+                    <div class="alert alert-info shadow-sm">
+                        <i class="fa-solid fa-info-circle text-xl"></i>
+                        <span>Nenhum empréstimo registrado para este cliente.</span>
+                    </div>
+                `;
             } else {
                 data.emprestimos.forEach(emp => {
-                    text += ` >> CONTRATO Nº: ${emp.numero_contrato} - Status: [${emp.status}]\n`;
-                    text += `    Valor Total Liberado: ${formatter.format(emp.valor)}\n\n`;
+                    let statusBadge = 'badge-ghost';
+                    if (emp.status === 'ATIVO') statusBadge = 'badge-success';
+                    else if (emp.status === 'QUITADO') statusBadge = 'badge-info';
+                    else if (emp.status === 'RENEGOCIADO') statusBadge = 'badge-warning';
+
+                    html += `
+                        <div class="extrato-card card bg-base-100 shadow-md mb-6 border border-base-200 overflow-hidden">
+                            <div class="bg-base-200/50 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-base-200 gap-3">
+                                <div>
+                                    <span class="text-xs opacity-60 font-bold uppercase tracking-wider">Contrato</span>
+                                    <h3 class="text-xl font-black text-base-content mt-1"><i class="fa-solid fa-file-contract opacity-50 mr-2 text-sm"></i>${emp.numero_contrato}</h3>
+                                </div>
+                                <div class="text-left sm:text-right">
+                                    <div class="badge ${statusBadge} font-bold p-3">${emp.status}</div>
+                                    <p class="text-sm font-bold mt-2 opacity-70">Total Liberado: <span class="text-primary text-lg ml-1">${formatter.format(emp.valor)}</span></p>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="overflow-x-auto">
+                                    <table class="table table-zebra w-full text-center">
+                                        <thead class="bg-base-100 text-base-content/70">
+                                            <tr>
+                                                <th class="w-16 text-center">Nº</th>
+                                                <th>Vencimento</th>
+                                                <th class="text-right">Valor Atualizado</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                    `;
                     
                     if (emp.parcelas.length === 0) {
-                        text += `    Nenhuma parcela associada.\n\n`;
+                        html += `<tr><td colspan="4" class="text-center py-6 opacity-50 font-medium">Nenhuma parcela associada.</td></tr>`;
                     } else {
-                        text += `    [PARCELAS]\n`;
                         emp.parcelas.forEach(p => {
                             let dt_venc = "—";
                             if(p.vencimento) {
                                 dt_venc = formatarDataBR(p.vencimento);
                             }
-                            text += `      Parc ${String(p.numero).padStart(2, '0')} | Venc: ${dt_venc} | Val: ${formatter.format(p.valor).padStart(12)} | ${p.status}\n`;
+                            
+                            let pStatusClass = 'badge badge-ghost font-bold';
+                            if (p.status === 'PAGA') pStatusClass = 'badge badge-success font-bold';
+                            else if (p.status === 'ATRASADA') pStatusClass = 'badge badge-error font-bold';
+                            else if (p.status === 'A VENCER') pStatusClass = 'badge badge-warning font-bold';
+                            else if (p.status === 'JUROS PAGOS') pStatusClass = 'badge badge-info font-bold';
+
+                            html += `
+                                <tr class="hover">
+                                    <td class="text-center font-bold text-base-content/50">${String(p.numero).padStart(2, '0')}</td>
+                                    <td class="font-semibold">${dt_venc}</td>
+                                    <td class="text-right font-bold text-primary">${formatter.format(p.valor)}</td>
+                                    <td class="text-center"><span class="${pStatusClass} p-3">${p.status}</span></td>
+                                </tr>
+                            `;
                         });
-                        text += `\n`;
                     }
+                    
+                    html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 });
             }
             
-            textArea.value = text;
+            container.innerHTML = html;
 
         } catch (e) {
-            textArea.value = "Erro ao carregar o extrato do cliente.";
+            container.innerHTML = `
+                <div class="alert alert-error shadow-lg">
+                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                    <span>Erro ao carregar o extrato do cliente. Tente novamente mais tarde.</span>
+                </div>
+            `;
             console.error(e);
         }
+    }
+
+    function baixarPDF() {
+        const tipo = document.getElementById('tipoRelatorio').value;
+        const btn = document.getElementById('btnPdf');
+        const oldHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Gerando...';
+        btn.disabled = true;
+
+        const printArea = document.getElementById('printArea');
+
+        // Convert logo to base64 to guarantee it shows in PDF
+        const logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        logoImg.src = '/assets/logo/logo.png';
+        
+        logoImg.onload = function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = logoImg.naturalWidth;
+            canvas.height = logoImg.naturalHeight;
+            canvas.getContext('2d').drawImage(logoImg, 0, 0);
+            const base64 = canvas.toDataURL('image/png');
+
+            let logoDiv = document.getElementById('pdfLogo');
+            if (!logoDiv) {
+                logoDiv = document.createElement('div');
+                logoDiv.id = 'pdfLogo';
+                logoDiv.style.cssText = 'text-align:center;margin-bottom:20px;padding:10px 0;';
+                printArea.insertBefore(logoDiv, printArea.firstChild);
+            }
+            logoDiv.innerHTML = '<img src="' + base64 + '" style="max-height:240px;margin:0 auto;display:block;">';
+            logoDiv.classList.remove('hidden');
+
+            generatePDF(tipo, btn, oldHtml, logoDiv);
+        };
+
+        logoImg.onerror = function() {
+            // If logo fails, generate without it
+            generatePDF(tipo, btn, oldHtml, null);
+        };
+    }
+
+    function generatePDF(tipo, btn, oldHtml, logoDiv) {
+        const elementToPrint = document.getElementById('printArea');
+        const opt = {
+            margin:       [10, 10, 20, 10], // top, left, bottom, right
+            filename:     'relatorio_' + tipo.toLowerCase().replace(/ /g, '_') + '.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: tipo === 'Extrato do Cliente' ? 'portrait' : 'landscape' },
+            pagebreak:    { mode: ['css', 'legacy'], avoid: ['.extrato-card', 'tr'] }
+        };
+
+        html2pdf().set(opt).from(elementToPrint).toPdf().get('pdf').then(function (pdf) {
+            var totalPages = pdf.internal.getNumberOfPages();
+            const agora = new Date();
+            const footerText = `Gerado pelo Capital Credity v1.0 em ${agora.toLocaleDateString('pt-BR')} às ${agora.toLocaleTimeString('pt-BR')}`;
+            
+            for (var i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(8);
+                pdf.setTextColor(100);
+                
+                // Calculate text width to center it
+                var textWidth = pdf.getStringUnitWidth(footerText) * pdf.internal.getFontSize() / pdf.internal.scaleFactor;
+                var textOffset = (pdf.internal.pageSize.width - textWidth) / 2;
+                
+                // Draw text at the bottom (height - 10mm)
+                pdf.text(footerText, textOffset, pdf.internal.pageSize.height - 10);
+            }
+        }).save().then(() => {
+            btn.innerHTML = oldHtml;
+            btn.disabled = false;
+            if (logoDiv) logoDiv.classList.add('hidden');
+        }).catch(() => {
+            btn.innerHTML = oldHtml;
+            btn.disabled = false;
+            if (logoDiv) logoDiv.classList.add('hidden');
+        });
     }
 
     // Inicialização

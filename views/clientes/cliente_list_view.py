@@ -84,6 +84,9 @@ class ClienteListView(ctk.CTkFrame):
         btn_editar = ctk.CTkButton(bottom_frame, text="Editar Selecionado", command=self._on_editar_click)
         btn_editar.pack(side="left")
 
+        btn_ver_docs = ctk.CTkButton(bottom_frame, text="📄 Ver Documentos", fg_color="#FF9800", hover_color="#F57C00", command=self._on_ver_docs_click)
+        btn_ver_docs.pack(side="left", padx=10)
+
         btn_ver_score = ctk.CTkButton(bottom_frame, text="🔍 Detalhes do Score/Risco", fg_color="#29B6F6", hover_color="#0288D1", command=self._on_ver_score_click)
         btn_ver_score.pack(side="left", padx=10)
         
@@ -151,6 +154,82 @@ class ClienteListView(ctk.CTkFrame):
 
     def _on_novo_click(self):
         ClienteFormView(self.winfo_toplevel(), on_save_callback=self._load_data)
+
+    def _on_ver_docs_click(self):
+        """Abre uma janela para visualizar os documentos do cliente selecionado."""
+        cliente = self._get_selected_cliente()
+        if not cliente:
+            return
+        
+        if not cliente.doc_identidade and not cliente.doc_endereco:
+            messagebox.showinfo("Documentos", f"O cliente '{cliente.nome}' não possui documentos cadastrados.\n\nPara anexar documentos, clique em 'Editar Selecionado' e use os botões de upload.")
+            return
+        
+        # Criar janela de visualização
+        doc_window = ctk.CTkToplevel(self.winfo_toplevel())
+        doc_window.title(f"Documentos — {cliente.nome}")
+        doc_window.geometry("700x600")
+        doc_window.grab_set()
+        
+        # Centralizar
+        doc_window.update_idletasks()
+        x = (doc_window.winfo_screenwidth() // 2) - (700 // 2)
+        y = (doc_window.winfo_screenheight() // 2) - (600 // 2)
+        doc_window.geometry(f"+{x}+{y}")
+        
+        scroll = ctk.CTkScrollableFrame(doc_window, fg_color="transparent")
+        scroll.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        import base64
+        import io
+        from PIL import Image, ImageTk
+        
+        def render_doc(parent, title, b64_data):
+            lbl_title = ctk.CTkLabel(parent, text=title, font=ctk.CTkFont(size=16, weight="bold"))
+            lbl_title.pack(pady=(15, 5), anchor="w", padx=10)
+            
+            sep = ctk.CTkFrame(parent, height=2, fg_color="#565b5e")
+            sep.pack(fill="x", padx=10, pady=(0, 10))
+            
+            if b64_data.startswith("data:application/pdf"):
+                lbl_pdf = ctk.CTkLabel(parent, text="📋 Documento em PDF. Use 'Editar Selecionado' para trocar o arquivo.\nPDFs não podem ser pré-visualizados aqui.", text_color="gray")
+                lbl_pdf.pack(padx=10, pady=10)
+            else:
+                try:
+                    # Extrair bytes da string base64
+                    header, encoded = b64_data.split(",", 1)
+                    img_bytes = base64.b64decode(encoded)
+                    img = Image.open(io.BytesIO(img_bytes))
+                    
+                    # Redimensionar para caber na janela
+                    max_w = 650
+                    if img.width > max_w:
+                        ratio = max_w / img.width
+                        img = img.resize((max_w, int(img.height * ratio)), Image.LANCZOS)
+                    
+                    photo = ImageTk.PhotoImage(img)
+                    
+                    lbl_img = ctk.CTkLabel(parent, text="", image=photo)
+                    lbl_img.image = photo  # Manter referência
+                    lbl_img.pack(padx=10, pady=5)
+                except Exception as e:
+                    lbl_err = ctk.CTkLabel(parent, text=f"Erro ao carregar imagem: {e}", text_color="red")
+                    lbl_err.pack(padx=10, pady=10)
+        
+        if cliente.doc_identidade:
+            render_doc(scroll, "📌 Documento de Identidade (RG/CPF)", cliente.doc_identidade)
+        else:
+            lbl = ctk.CTkLabel(scroll, text="📌 Identidade: Não cadastrada", text_color="gray")
+            lbl.pack(pady=10, anchor="w", padx=10)
+        
+        if cliente.doc_endereco:
+            render_doc(scroll, "📌 Comprovante de Endereço", cliente.doc_endereco)
+        else:
+            lbl = ctk.CTkLabel(scroll, text="📌 Comprovante de Endereço: Não cadastrado", text_color="gray")
+            lbl.pack(pady=10, anchor="w", padx=10)
+        
+        btn_fechar = ctk.CTkButton(doc_window, text="Fechar", fg_color="gray", command=doc_window.destroy)
+        btn_fechar.pack(pady=15)
 
     def _on_editar_click(self):
         cliente = self._get_selected_cliente()

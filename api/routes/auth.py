@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from database.connection import get_session
 from services.auth_service import AuthService
+from api.security import create_access_token
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 auth_service = AuthService()
@@ -19,9 +20,14 @@ def login(request: LoginRequest, db: Session = Depends(get_session)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Usuário ou senha incorretos",
         )
-    # Em um app real usaríamos JWT. Aqui retornamos um token simulado e info do usuário.
+    # Gerar token JWT criptografado com dados do usuário
+    access_token = create_access_token(data={
+        "sub": str(user.id),
+        "nome": user.nome,
+        "role": user.tipo
+    })
     return {
-        "access_token": f"simulated-token-for-{user.id}",
+        "access_token": access_token,
         "token_type": "bearer",
         "user": {
             "id": user.id,
@@ -42,13 +48,6 @@ def init_db(secret: str = ""):
     from database.seed import seed_admin
     
     # Importar todos os modelos para o SQLAlchemy reconhecê-los antes do create_all
-    from models.usuario import Usuario
-    from models.cliente import Cliente
-    from models.emprestimo import Emprestimo
-    from models.parcela import Parcela
-    from models.recebimento import Recebimento
-    from models.renegociacao import Renegociacao
-    from models.movimentacao import Movimentacao
     
     Base.metadata.create_all(bind=engine)
     seed_admin()

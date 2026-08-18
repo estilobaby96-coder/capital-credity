@@ -3,7 +3,7 @@ from tkinter import messagebox
 from database.connection import SessionLocal
 from services.auth_service import AuthService
 from utils.session import session_manager
-from config.settings import COLOR_PRIMARY, COLOR_SURFACE, FONT_SIZE_H1, FONT_SIZE_BODY
+from config.settings import COLOR_SURFACE, FONT_SIZE_H1
 
 class ConfiguracaoView(ctk.CTkFrame):
     def __init__(self, master, **kwargs):

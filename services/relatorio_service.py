@@ -1,7 +1,7 @@
 """Serviço de Relatórios — Consultas especializadas por tipo."""
 
 from datetime import date, datetime
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_
 
@@ -9,6 +9,7 @@ from models.emprestimo import Emprestimo
 from models.parcela import Parcela
 from models.cliente import Cliente
 from models.movimentacao import Movimentacao
+from services.pagamento_service import PagamentoService
 
 
 class RelatorioService:
@@ -24,7 +25,10 @@ class RelatorioService:
 
         emprestimos = db.query(Emprestimo).options(
             joinedload(Emprestimo.parcelas)
-        ).filter(Emprestimo.cliente_id == cliente_id).all()
+        ).filter(
+            Emprestimo.cliente_id == cliente_id,
+            Emprestimo.status != "CANCELADO"
+        ).all()
 
         resultado = {
             "cliente": cliente,
@@ -45,10 +49,14 @@ class RelatorioService:
     # ------------------------------------------------------------------ #
     def inadimplencia(self, db: Session) -> List[Dict[str, Any]]:
         """Retorna todas as parcelas atrasadas com dados do cliente e empréstimo."""
-        parcelas = db.query(Parcela).options(
+        PagamentoService().atualizar_todas_parcelas_pendentes(db)
+        
+        parcelas = db.query(Parcela).join(Emprestimo).options(
             joinedload(Parcela.emprestimo).joinedload(Emprestimo.cliente)
         ).filter(
-            Parcela.status == "ATRASADA"
+            Parcela.status == "ATRASADA",
+            Parcela.status != "CANCELADA",
+            Emprestimo.status != "CANCELADO"
         ).order_by(Parcela.data_vencimento).all()
 
         rows = []
@@ -62,6 +70,9 @@ class RelatorioService:
                 "numero_contrato": p.emprestimo.numero_contrato if p.emprestimo and p.emprestimo.numero_contrato else f"#{p.emprestimo_id}",
                 "parcela_num": p.numero,
                 "vencimento": p.data_vencimento,
+                "valor_original": p.capital + p.juros,
+                "multa": p.multa or 0.0,
+                "juros_mora": p.juros_mora or 0.0,
                 "valor": p.valor_atualizado,
                 "dias_atraso": p.dias_atraso or 0,
                 "status": p.status,
@@ -112,17 +123,21 @@ class RelatorioService:
         import calendar
         from models.recebimento import Recebimento
 
+        PagamentoService().atualizar_todas_parcelas_pendentes(db)
+
         ultimo_dia = calendar.monthrange(ano, mes)[1]
         dt_ini = datetime(ano, mes, 1, 0, 0, 0)
         dt_fim = datetime(ano, mes, ultimo_dia, 23, 59, 59)
 
         # 1. Parcelas previstas para o mês
-        parcelas_previstas = db.query(Parcela).options(
+        parcelas_previstas = db.query(Parcela).join(Emprestimo).options(
             joinedload(Parcela.emprestimo).joinedload(Emprestimo.cliente)
         ).filter(
             and_(
                 Parcela.data_vencimento >= dt_ini,
-                Parcela.data_vencimento <= dt_fim
+                Parcela.data_vencimento <= dt_fim,
+                Parcela.status != "CANCELADA",
+                Emprestimo.status != "CANCELADO"
             )
         ).order_by(Parcela.data_vencimento).all()
 

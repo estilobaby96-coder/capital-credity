@@ -24,6 +24,8 @@ class Cliente(Base):
     referencias = Column(Text)
     observacoes = Column(Text)
     foto_path = Column(String(255))
+    doc_identidade = Column(Text) # Base64 da imagem/pdf do RG/CPF
+    doc_endereco = Column(Text) # Base64 da imagem/pdf do comprovante de endereco
     
     criado_em = Column(DateTime(timezone=True), server_default=func.now())
     atualizado_em = Column(DateTime(timezone=True), onupdate=func.now())

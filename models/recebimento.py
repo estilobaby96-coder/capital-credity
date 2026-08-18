@@ -21,3 +21,4 @@ class Recebimento(Base):
     # Relacionamentos
     parcela = relationship("Parcela", back_populates="recebimentos")
     operador = relationship("Usuario")
+    movimentacoes = relationship("Movimentacao", back_populates="recebimento", cascade="all, delete-orphan")

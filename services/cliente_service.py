@@ -9,7 +9,6 @@ from models.cliente import Cliente
 
 class ValidationError(Exception):
     """Exceção levantada quando há erro de validação de negócios."""
-    pass
 
 
 class ClienteService:
@@ -55,7 +54,10 @@ class ClienteService:
 
         # 4. Salvar
         if cliente_id:
-            return self.repo.update(db, cliente_id, data)
+            cliente_db = self.repo.get(db, cliente_id)
+            if not cliente_db:
+                raise ValidationError("Cliente não encontrado.")
+            return self.repo.update(db, cliente_db, data)
         else:
             return self.repo.create(db, data)
 
@@ -73,8 +75,6 @@ class ClienteService:
     def get_cliente_metrics(self, db: Session, cliente_id: int) -> Dict[str, Any]:
         """Calcula Score Interno, Limite Progressivo e Termômetro de Risco do Cliente."""
         from models.emprestimo import Emprestimo
-        from models.parcela import Parcela
-        from models.recebimento import Recebimento
         from datetime import date
 
         emprestimos = db.query(Emprestimo).filter(Emprestimo.cliente_id == cliente_id).all()

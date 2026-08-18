@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from database.connection import get_session
 from services.pagamento_service import PagamentoService
+from api.security import get_current_user
 
 router = APIRouter(prefix="/pagamentos", tags=["Pagamentos"])
 pagamento_service = PagamentoService()
@@ -16,7 +17,7 @@ class PagamentoRequest(BaseModel):
     taxa_servico: float = 0.0
 
 @router.post("/baixa")
-def registrar_baixa(req: PagamentoRequest, db: Session = Depends(get_session)):
+def registrar_baixa(req: PagamentoRequest, db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
     try:
         resultado = pagamento_service.registrar_pagamento(
             db=db,
@@ -34,7 +35,7 @@ from services.dashboard_service import DashboardService
 dashboard_service = DashboardService()
 
 @router.get("/pendentes")
-def listar_parcelas_pendentes(db: Session = Depends(get_session)):
+def listar_parcelas_pendentes(db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
     try:
         # Puxamos até 1000 parcelas pendentes para a tela de recebimentos
         parcelas = dashboard_service.get_proximas_parcelas(db, limite=1000)

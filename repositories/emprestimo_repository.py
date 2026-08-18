@@ -1,9 +1,8 @@
 """Repositório de Empréstimos."""
 
 from datetime import date
-from typing import List, Optional
+from typing import List
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func as sa_func, extract
 from repositories.base_repository import BaseRepository
 from models.emprestimo import Emprestimo
 

@@ -1,6 +1,5 @@
 """Tela de Formulário (Modal) para gerar empréstimos com simulação, validações de score e garantias."""
 
-from datetime import date
 from tkcalendar import DateEntry
 import customtkinter as ctk
 from tkinter import ttk, messagebox

@@ -1,23 +1,14 @@
 """Ponto de entrada principal do Capital Credity."""
 
 import os
-import sys
 from dotenv import load_dotenv
 
 # Carregar variáveis de ambiente antes de tudo
 load_dotenv()
 
-import threading
 import uvicorn
 from database.base import Base
 from database.connection import engine
-from models.usuario import Usuario
-from models.cliente import Cliente
-from models.emprestimo import Emprestimo
-from models.parcela import Parcela
-from models.recebimento import Recebimento
-from models.renegociacao import Renegociacao
-from models.movimentacao import Movimentacao
 from database.seed import seed_admin
 from utils.theme import apply_theme
 from views.app import App

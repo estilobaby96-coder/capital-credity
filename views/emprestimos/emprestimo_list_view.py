@@ -1,7 +1,7 @@
 """Listagem de Empréstimos (Grid) para a área central."""
 
 import customtkinter as ctk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 from database.connection import SessionLocal
 from services.emprestimo_service import EmprestimoService
 from views.emprestimos.emprestimo_form_view import EmprestimoFormView

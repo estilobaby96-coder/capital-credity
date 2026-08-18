@@ -1,6 +1,5 @@
 """Ponto de entrada exclusivo para rodar o Servidor Web do Capital Credity."""
 
-import os
 from dotenv import load_dotenv
 
 # Carregar variáveis de ambiente antes de tudo

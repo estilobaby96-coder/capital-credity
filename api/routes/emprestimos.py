@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any, Optional
+from typing import Optional
 from datetime import date
 from pydantic import BaseModel
 from database.connection import get_session
 from services.emprestimo_service import EmprestimoService
+from api.security import get_current_user
 
 class EmprestimoCreate(BaseModel):
     cliente_id: int
@@ -21,13 +22,14 @@ router = APIRouter(prefix="/emprestimos", tags=["Empréstimos"])
 emprestimo_service = EmprestimoService()
 
 @router.get("/")
-def listar_emprestimos(db: Session = Depends(get_session)):
+def listar_emprestimos(db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
     emprestimos = emprestimo_service.get_all(db)
     return [
         {
             "id": e.id,
             "numero_contrato": e.numero_contrato,
             "cliente_id": e.cliente_id,
+            "cliente_nome": e.cliente.nome if e.cliente else "N/A",
             "valor_principal": e.valor_emprestado,
             "valor_total": e.valor_emprestado * (1 + (e.taxa_juros/100)), # Stub aproximado
             "status": e.status,
@@ -37,7 +39,7 @@ def listar_emprestimos(db: Session = Depends(get_session)):
     ]
 
 @router.post("/")
-def criar_emprestimo(emprestimo: EmprestimoCreate, db: Session = Depends(get_session)):
+def criar_emprestimo(emprestimo: EmprestimoCreate, db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
     try:
         novo = emprestimo_service.create_loan(
             db=db,
@@ -58,7 +60,7 @@ def criar_emprestimo(emprestimo: EmprestimoCreate, db: Session = Depends(get_ses
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{emprestimo_id}/parcelas")
-def listar_parcelas(emprestimo_id: int, db: Session = Depends(get_session)):
+def listar_parcelas(emprestimo_id: int, db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
     try:
         emprestimo = emprestimo_service.get_by_id(db, emprestimo_id)
         if not emprestimo:
@@ -77,3 +79,35 @@ def listar_parcelas(emprestimo_id: int, db: Session = Depends(get_session)):
         ]
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+class EmprestimoUpdate(BaseModel):
+    valor_solicitado: float
+    taxa_juros: float
+    data_vencimento: date
+
+@router.put("/{emprestimo_id}")
+def atualizar_emprestimo(emprestimo_id: int, dados: EmprestimoUpdate, db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
+    try:
+        atualizado = emprestimo_service.update_loan(
+            db=db,
+            emprestimo_id=emprestimo_id,
+            valor=dados.valor_solicitado,
+            taxa_juros=dados.taxa_juros,
+            data_vencimento=dados.data_vencimento
+        )
+        return {"id": atualizado.id, "numero_contrato": atualizado.numero_contrato, "status": atualizado.status}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/{emprestimo_id}/cancelar")
+def cancelar_emprestimo(emprestimo_id: int, db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
+    try:
+        cancelado = emprestimo_service.cancel_loan(db, emprestimo_id)
+        return {"id": cancelado.id, "numero_contrato": cancelado.numero_contrato, "status": cancelado.status}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

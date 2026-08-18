@@ -1,11 +1,9 @@
 """Serviço de Empréstimos — Core financeiro."""
 
 from datetime import date
-from dateutil.relativedelta import relativedelta
 from typing import List, Dict, Any
 from sqlalchemy.orm import Session
 from models.emprestimo import Emprestimo
-from models.parcela import Parcela
 from repositories.emprestimo_repository import EmprestimoRepository
 from repositories.parcela_repository import ParcelaRepository
 
@@ -51,17 +49,17 @@ class EmprestimoService:
                 f"Regularize as pendências anteriores antes de conceder um novo empréstimo."
             )
 
-        # Validação 2: Limite do Nível (Score)
-        if valor_solicitado > metrics["limite_disponivel"]:
-            lim_fmt = f"R$ {metrics['limite_disponivel']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-            max_fmt = f"R$ {metrics['limite_max']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-            sol_fmt = f"R$ {valor_solicitado:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-            nivel = metrics['nivel']
-            raise ValueError(
-                f"LIMITE EXCEDIDO! Cliente nível '{nivel}' possui limite máximo de {max_fmt}.\n"
-                f"Saldo limite disponível para novo empréstimo: {lim_fmt}.\n"
-                f"Valor solicitado: {sol_fmt}."
-            )
+        # Validação 2: Limite do Nível (Score) - REMOVIDO a pedido do usuário
+        # if valor_solicitado > metrics["limite_disponivel"]:
+        #     lim_fmt = f"R$ {metrics['limite_disponivel']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        #     max_fmt = f"R$ {metrics['limite_max']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        #     sol_fmt = f"R$ {valor_solicitado:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        #     nivel = metrics['nivel']
+        #     raise ValueError(
+        #         f"LIMITE EXCEDIDO! Cliente nível '{nivel}' possui limite máximo de {max_fmt}.\n"
+        #         f"Saldo limite disponível para novo empréstimo: {lim_fmt}.\n"
+        #         f"Valor solicitado: {sol_fmt}."
+        #     )
 
         parcelas_simuladas = self.simulate_installments(valor_solicitado, taxa_juros, data_vencimento)
 
@@ -102,3 +100,51 @@ class EmprestimoService:
     def get_all(self, db: Session) -> List[Emprestimo]:
         return self.emprestimo_repo.get_all_with_cliente(db)
 
+    def get_by_id(self, db: Session, emprestimo_id: int) -> Emprestimo:
+        return db.query(Emprestimo).filter(Emprestimo.id == emprestimo_id).first()
+
+    def update_loan(self, db: Session, emprestimo_id: int, valor: float, taxa_juros: float, data_vencimento: date) -> Emprestimo:
+        """Atualiza valor, taxa de juros e data de vencimento de um empréstimo e recalcula a parcela."""
+        emprestimo = self.get_by_id(db, emprestimo_id)
+        if not emprestimo:
+            raise ValueError("Empréstimo não encontrado.")
+        if emprestimo.status not in ("ATIVO",):
+            raise ValueError(f"Não é possível editar um empréstimo com status '{emprestimo.status}'.")
+
+        emprestimo.valor_emprestado = valor
+        emprestimo.valor_liberado = valor
+        emprestimo.taxa_juros = taxa_juros
+        emprestimo.data_vencimento = data_vencimento
+
+        # Recalcula a parcela (se ainda estiver A VENCER)
+        for p in emprestimo.parcelas:
+            if p.status == "A VENCER":
+                juros = round(valor * (taxa_juros / 100.0), 2)
+                p.capital = valor
+                p.juros = juros
+                p.valor_atualizado = round(valor + juros, 2)
+                p.data_vencimento = data_vencimento
+
+        db.commit()
+        db.refresh(emprestimo)
+        return emprestimo
+
+    def cancel_loan(self, db: Session, emprestimo_id: int) -> Emprestimo:
+        """Cancela um empréstimo apagando-o definitivamente do sistema."""
+        emprestimo = self.get_by_id(db, emprestimo_id)
+        if not emprestimo:
+            raise ValueError("Empréstimo não encontrado.")
+        if emprestimo.status not in ("ATIVO", "CANCELADO"):
+            raise ValueError(f"Não é possível cancelar um empréstimo com status '{emprestimo.status}'.")
+
+        class CanceladoReturn:
+            id = emprestimo.id
+            numero_contrato = emprestimo.numero_contrato
+            status = "DELETADO"
+
+        ret = CanceladoReturn()
+        
+        db.delete(emprestimo)
+        db.commit()
+        
+        return ret

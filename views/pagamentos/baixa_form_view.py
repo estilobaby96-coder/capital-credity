@@ -1,6 +1,5 @@
 """Tela de Formulário (Modal) para realizar a baixa de uma parcela."""
 
-from datetime import date
 from dateutil.relativedelta import relativedelta
 import customtkinter as ctk
 from tkinter import messagebox

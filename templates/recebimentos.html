@@ -3,7 +3,7 @@
 {% block content %}
 <div class="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 mb-6 border-b page-border pb-4">
     <h1 class="text-2xl font-bold heading-text">Gestão de Recebimentos</h1>
-    <button onclick="carregarPendentes()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded w-full md:w-auto">
+    <button onclick="carregarPendentes(true)" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded w-full md:w-auto">
         <i class="fa-solid fa-rotate-right mr-2"></i> Atualizar
     </button>
 </div>
@@ -30,12 +30,12 @@
 </div>
 
 <script>
-    async function carregarPendentes() {
+    async function carregarPendentes(force = false) {
         const tbody = document.getElementById('tabelaPendentes');
         tbody.innerHTML = '<tr><td colspan="9" class="px-4 py-4 text-center sub-text">Carregando...</td></tr>';
         
         try {
-            const parcelas = await fetchAPI('/pagamentos/pendentes');
+            const parcelas = await fetchAPI('/pagamentos/pendentes', force ? {noCache: true} : {});
             tbody.innerHTML = '';
             
             if (parcelas.length === 0) {
@@ -47,7 +47,10 @@
             
             parcelas.forEach(p => {
                 const isAtrasada = p.status === 'ATRASADA';
-                const statusColor = isAtrasada ? 'text-red-600 dark:text-red-500' : 'text-yellow-600 dark:text-yellow-500';
+                
+                let statusHtml = isAtrasada 
+                    ? `<span class="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 px-2 py-1 rounded text-xs whitespace-nowrap">⚠️ ${p.status}</span>`
+                    : `<span class="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 px-2 py-1 rounded text-xs whitespace-nowrap">${p.status}</span>`;
                 
                 let dataFormatada = formatarDataBR(p.vencimento);
 
@@ -60,12 +63,10 @@
                 if (totalAcrescimos > 0) {
                     acrescimosHtml = `<span class="text-red-600 dark:text-red-400 font-bold">+${formatter.format(totalAcrescimos)}</span>
                         <br><span class="text-xs sub-text">Multa: ${formatter.format(multa)} | Mora: ${formatter.format(jurosMora)}</span>`;
-                } else if (diasAtraso > 0) {
-                    acrescimosHtml = `<span class="text-brand-green font-bold">Isento (tolerância)</span>`;
                 }
 
                 let diasHtml = diasAtraso > 0 
-                    ? `<span class="font-bold ${diasAtraso > 3 ? 'text-red-600 dark:text-red-500' : 'text-yellow-600 dark:text-yellow-500'}">${diasAtraso} dia${diasAtraso > 1 ? 's' : ''}</span>`
+                    ? `<span class="font-bold text-red-600 dark:text-red-500">${diasAtraso} dia${diasAtraso > 1 ? 's' : ''}</span>`
                     : '-';
                 
                 let acoesHtml = `
@@ -98,7 +99,7 @@
                     <td>${diasHtml}</td>
                     <td>${acrescimosHtml}</td>
                     <td class="font-bold">${formatter.format(p.valor_atualizado)}</td>
-                    <td class="font-bold ${statusColor}">${p.status}</td>
+                    <td class="font-bold">${statusHtml}</td>
                     <td>${acoesHtml}</td>
                 `;
                 tbody.appendChild(tr);

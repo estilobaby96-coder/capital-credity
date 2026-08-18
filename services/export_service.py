@@ -1,18 +1,18 @@
 """Motor de Exportação — PDF (reportlab) e Excel (openpyxl) com logo da empresa."""
 
 import os
-from datetime import date, datetime
-from typing import List, Dict, Any
+from datetime import datetime
+from typing import List
 
 # ── PDF ──
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import mm, cm
+from reportlab.lib.units import mm
 from reportlab.platypus import (
-    SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image as RLImage, PageBreak
+    SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image as RLImage
 )
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 
 # ── Excel ──
 from openpyxl import Workbook

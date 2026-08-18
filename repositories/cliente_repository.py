@@ -13,6 +13,10 @@ class ClienteRepository(BaseRepository[Cliente]):
     def __init__(self):
         super().__init__(Cliente)
 
+    def get_all(self, db: Session) -> List[Cliente]:
+        """Busca todos os clientes ordenados por nome."""
+        return db.query(Cliente).order_by(Cliente.nome.asc()).all()
+
     def get_by_cpf(self, db: Session, cpf: str) -> Optional[Cliente]:
         """Busca um cliente pelo CPF exato."""
         return db.query(Cliente).filter(Cliente.cpf == cpf).first()

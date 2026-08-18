@@ -1,7 +1,9 @@
 """Tela de Formulário (Modal) para cadastro e edição de clientes."""
 
 import customtkinter as ctk
-from tkinter import messagebox
+import base64
+import os
+from tkinter import messagebox, filedialog
 from database.connection import SessionLocal
 from services.cliente_service import ClienteService, ValidationError
 
@@ -12,16 +14,18 @@ class ClienteFormView(ctk.CTkToplevel):
         self.on_save_callback = on_save_callback
         self.cliente = cliente
         self.service = ClienteService()
+        self.doc_identidade_b64 = ""
+        self.doc_endereco_b64 = ""
         
         titulo = "Editar Cliente" if cliente else "Novo Cliente"
         self.title(titulo)
-        self.geometry("450x650")
-        self.minsize(400, 500)
+        self.geometry("500x750")
+        self.minsize(450, 600)
         
         # Centralizar
         self.update_idletasks()
-        x = (self.winfo_screenwidth() // 2) - (450 // 2)
-        y = (self.winfo_screenheight() // 2) - (650 // 2)
+        x = (self.winfo_screenwidth() // 2) - (500 // 2)
+        y = (self.winfo_screenheight() // 2) - (750 // 2)
         self.geometry(f"+{x}+{y}")
         
         self.grab_set()  # Modal
@@ -48,6 +52,43 @@ class ClienteFormView(ctk.CTkToplevel):
         self.entry_endereco = self._create_field("Endereço (Rua, Bairro)", self.scroll_frame)
         self.entry_cidade = self._create_field("Cidade / UF", self.scroll_frame)
         
+        # ── Seção de Documentos ──────────────────────────────────
+        lbl_docs = ctk.CTkLabel(self.scroll_frame, text="📄 Documentos", font=ctk.CTkFont(size=16, weight="bold"))
+        lbl_docs.pack(padx=20, pady=(20, 5), anchor="w")
+        
+        separator = ctk.CTkFrame(self.scroll_frame, height=2, fg_color="#565b5e")
+        separator.pack(fill="x", padx=20, pady=(0, 10))
+
+        # Doc Identidade
+        frame_id = ctk.CTkFrame(self.scroll_frame, fg_color="transparent")
+        frame_id.pack(fill="x", padx=20, pady=(5, 0))
+        
+        lbl_id = ctk.CTkLabel(frame_id, text="RG / CPF (Foto/Digitalização):", anchor="w")
+        lbl_id.pack(side="left")
+        
+        self.lbl_id_status = ctk.CTkLabel(frame_id, text="Nenhum arquivo", text_color="gray", anchor="e")
+        self.lbl_id_status.pack(side="right")
+        
+        btn_id = ctk.CTkButton(self.scroll_frame, text="📎 Selecionar Arquivo de Identidade", 
+                               fg_color="#29B6F6", hover_color="#0288D1",
+                               command=lambda: self._select_file("identidade"))
+        btn_id.pack(padx=20, pady=(5, 5), fill="x")
+        
+        # Doc Endereço
+        frame_end = ctk.CTkFrame(self.scroll_frame, fg_color="transparent")
+        frame_end.pack(fill="x", padx=20, pady=(10, 0))
+        
+        lbl_end = ctk.CTkLabel(frame_end, text="Comprovante de Endereço:", anchor="w")
+        lbl_end.pack(side="left")
+        
+        self.lbl_end_status = ctk.CTkLabel(frame_end, text="Nenhum arquivo", text_color="gray", anchor="e")
+        self.lbl_end_status.pack(side="right")
+        
+        btn_end = ctk.CTkButton(self.scroll_frame, text="📎 Selecionar Comprovante de Endereço", 
+                                fg_color="#29B6F6", hover_color="#0288D1",
+                                command=lambda: self._select_file("endereco"))
+        btn_end.pack(padx=20, pady=(5, 5), fill="x")
+        
         # Binds para máscaras
         self.entry_cpf.bind("<KeyRelease>", self._format_cpf)
         self.entry_telefone.bind("<KeyRelease>", self._format_telefone)
@@ -62,6 +103,44 @@ class ClienteFormView(ctk.CTkToplevel):
         
         btn_salvar = ctk.CTkButton(frame_botoes, text="Salvar", command=self._save)
         btn_salvar.pack(side="right", expand=True, padx=5)
+
+    def _select_file(self, tipo):
+        """Abre um diálogo para selecionar arquivo de imagem ou PDF."""
+        filepath = filedialog.askopenfilename(
+            parent=self,
+            title=f"Selecionar {'Identidade' if tipo == 'identidade' else 'Comprovante de Endereço'}",
+            filetypes=[
+                ("Imagens e PDFs", "*.png *.jpg *.jpeg *.bmp *.gif *.pdf"),
+                ("Imagens", "*.png *.jpg *.jpeg *.bmp *.gif"),
+                ("PDF", "*.pdf"),
+                ("Todos os Arquivos", "*.*")
+            ]
+        )
+        if filepath:
+            try:
+                with open(filepath, "rb") as f:
+                    file_bytes = f.read()
+                
+                # Determinar o MIME type
+                ext = os.path.splitext(filepath)[1].lower()
+                mime_map = {
+                    ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+                    ".bmp": "image/bmp", ".gif": "image/gif", ".pdf": "application/pdf"
+                }
+                mime = mime_map.get(ext, "application/octet-stream")
+                
+                b64_string = f"data:{mime};base64,{base64.b64encode(file_bytes).decode('utf-8')}"
+                filename = os.path.basename(filepath)
+                
+                if tipo == "identidade":
+                    self.doc_identidade_b64 = b64_string
+                    self.lbl_id_status.configure(text=f"✅ {filename}", text_color="#00C853")
+                else:
+                    self.doc_endereco_b64 = b64_string
+                    self.lbl_end_status.configure(text=f"✅ {filename}", text_color="#00C853")
+                    
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro ao ler o arquivo:\n{str(e)}")
 
     def _create_field(self, label_text, parent=None):
         if parent is None:
@@ -180,6 +259,14 @@ class ClienteFormView(ctk.CTkToplevel):
             self.entry_endereco.insert(0, self.cliente.endereco)
         if self.cliente.cidade:
             self.entry_cidade.insert(0, self.cliente.cidade)
+        
+        # Carregar estado dos documentos existentes
+        if self.cliente.doc_identidade:
+            self.doc_identidade_b64 = self.cliente.doc_identidade
+            self.lbl_id_status.configure(text="✅ Documento cadastrado", text_color="#00C853")
+        if self.cliente.doc_endereco:
+            self.doc_endereco_b64 = self.cliente.doc_endereco
+            self.lbl_end_status.configure(text="✅ Documento cadastrado", text_color="#00C853")
 
     def _save(self):
         data = {
@@ -189,7 +276,9 @@ class ClienteFormView(ctk.CTkToplevel):
             "email": self.entry_email.get().strip(),
             "cep": self.entry_cep.get().strip(),
             "endereco": self.entry_endereco.get().strip(),
-            "cidade": self.entry_cidade.get().strip()
+            "cidade": self.entry_cidade.get().strip(),
+            "doc_identidade": self.doc_identidade_b64,
+            "doc_endereco": self.doc_endereco_b64
         }
         
         db = SessionLocal()
@@ -205,3 +294,4 @@ class ClienteFormView(ctk.CTkToplevel):
             messagebox.showerror("Erro", f"Ocorreu um erro ao salvar:\n{str(e)}")
         finally:
             db.close()
+

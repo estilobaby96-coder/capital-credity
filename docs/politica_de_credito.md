@@ -13,32 +13,24 @@ O sistema divide os clientes em quatro patamares principais:
 ### 🥉 Nível Bronze
 *   **Condição:** 0 empréstimos quitados.
 *   **Descrição:** É o nível de entrada. Todo cliente recém-cadastrado na plataforma inicia nesta categoria enquanto não possui histórico de encerramento de contratos no Capital Credity.
-*   **Limite Máximo Concedido:** **R$ 1.000,00**
 
 ### 🥈 Nível Prata
 *   **Condição:** 1 a 2 empréstimos quitados.
 *   **Descrição:** O cliente já provou capacidade de pagamento ao liquidar totalmente pelo menos um contrato.
-*   **Limite Máximo Concedido:** **R$ 2.500,00**
 
 ### 🥇 Nível Ouro
 *   **Condição:** 3 a 4 empréstimos quitados.
 *   **Descrição:** Clientes recorrentes que demonstram alta confiabilidade e histórico positivo estabelecido na instituição.
-*   **Limite Máximo Concedido:** **R$ 5.000,00**
 
 ### 💎 Nível Diamante
 *   **Condição:** 5 ou mais empréstimos quitados.
 *   **Descrição:** Categoria máxima, destinada aos clientes premium da carteira, que possuem um relacionamento sólido e contínuo.
-*   **Limite Máximo Concedido:** **R$ 15.000,00**
 
 ---
 
 ## 🛡️ Termômetro de Risco e Bloqueios
 
-Além do Nível (que determina o Limite Máximo), o sistema realiza uma análise paralela do perfil de risco em tempo real.
-
-> [!WARNING]
-> **Bloqueio de Segurança por Limite:** 
-> O sistema impedirá ativamente a criação de novos empréstimos se o **Valor Solicitado** ultrapassar o Saldo de Limite Disponível do cliente para o seu nível atual. 
+Além do Nível, o sistema realiza uma análise paralela do perfil de risco em tempo real.
 
 ### Indicadores Visuais de Risco
 

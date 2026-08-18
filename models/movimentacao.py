@@ -23,4 +23,4 @@ class Movimentacao(Base):
 
     # Relacionamentos
     operador = relationship("Usuario")
-    recebimento = relationship("Recebimento")
+    recebimento = relationship("Recebimento", back_populates="movimentacoes")

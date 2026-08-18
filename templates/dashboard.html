@@ -114,13 +114,24 @@
                 let vencFormatado = formatarDataBR(p.vencimento);
                 let valorFormatado = formatter.format(p.valor_atualizado);
                 
+                const isAtrasada = p.status === 'ATRASADA';
+                const statusHtml = isAtrasada
+                    ? `<span class="inline-flex items-center gap-1.5 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 px-2.5 py-1 rounded-full text-xs font-semibold">
+                           <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse inline-block"></span>
+                           EM ATRASO
+                       </span>`
+                    : `<span class="inline-flex items-center gap-1.5 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 px-2.5 py-1 rounded-full text-xs font-semibold">
+                           <span class="w-2 h-2 rounded-full bg-yellow-500 inline-block"></span>
+                           A VENCER
+                       </span>`;
+
                 tr.innerHTML = `
                     <td class="p-3 text-sm text-center">${p.cliente}</td>
                     <td class="p-3 text-sm text-center">${p.numero_contrato}</td>
                     <td class="p-3 text-sm text-center">${p.parcela_num}</td>
-                    <td class="p-3 text-sm text-center">${vencFormatado}</td>
-                    <td class="p-3 text-sm text-center">${valorFormatado}</td>
-                    <td class="p-3 text-sm text-center">${p.status}</td>
+                    <td class="p-3 text-sm text-center ${isAtrasada ? 'font-bold text-red-600 dark:text-red-400' : ''}">${vencFormatado}</td>
+                    <td class="p-3 text-sm text-center font-bold">${valorFormatado}</td>
+                    <td class="p-3 text-sm text-center">${statusHtml}</td>
                 `;
                 tbody.appendChild(tr);
             });

@@ -4,12 +4,13 @@ from datetime import date
 
 from database.connection import get_session
 from services.relatorio_service import RelatorioService
+from api.security import get_current_user
 
 router = APIRouter(prefix="/relatorios", tags=["Relatórios"])
 relatorio_service = RelatorioService()
 
 @router.get("/mensal")
-def get_controle_mensal(mes: int = None, ano: int = None, db: Session = Depends(get_session)):
+def get_controle_mensal(mes: int = None, ano: int = None, db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
     try:
         hoje = date.today()
         if mes is None:
@@ -23,7 +24,7 @@ def get_controle_mensal(mes: int = None, ano: int = None, db: Session = Depends(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/extrato/{cliente_id}")
-def get_extrato(cliente_id: int, db: Session = Depends(get_session)):
+def get_extrato(cliente_id: int, db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
     try:
         dados = relatorio_service.extrato_cliente(db, cliente_id)
         if not dados["cliente"]:
@@ -59,7 +60,7 @@ def get_extrato(cliente_id: int, db: Session = Depends(get_session)):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/inadimplencia")
-def get_inadimplencia(db: Session = Depends(get_session)):
+def get_inadimplencia(db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
     try:
         dados = relatorio_service.inadimplencia(db)
         # Format the date explicitly
@@ -71,7 +72,7 @@ def get_inadimplencia(db: Session = Depends(get_session)):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/fluxo_caixa")
-def get_fluxo_caixa(data_inicio: date, data_fim: date, db: Session = Depends(get_session)):
+def get_fluxo_caixa(data_inicio: date, data_fim: date, db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
     try:
         dados = relatorio_service.fluxo_caixa(db, data_inicio, data_fim)
         # format date explicitly

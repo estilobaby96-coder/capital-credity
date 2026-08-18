@@ -4,12 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Capital Credity</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon.png">
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#00C853">
+    <link rel="apple-touch-icon" href="/assets/logo/logo.png">
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SweetAlert2 (Para modais de erro/sucesso) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('Service Worker registrado!', reg))
+                    .catch(err => console.error('Erro no Service Worker', err));
+            });
+        }
+    </script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -147,6 +166,35 @@
 
         async function fetchAPI(endpoint, options = {}) {
             const token = localStorage.getItem('token');
+            const method = options.method || 'GET';
+            const cacheKey = 'api_cache_' + endpoint;
+
+            // Limpa o cache caso seja uma mutação (POST, PUT, DELETE)
+            if (method !== 'GET') {
+                const keysToRemove = [];
+                for (let i = 0; i < sessionStorage.length; i++) {
+                    const key = sessionStorage.key(i);
+                    if (key && key.startsWith('api_cache_')) {
+                        keysToRemove.push(key);
+                    }
+                }
+                keysToRemove.forEach(k => sessionStorage.removeItem(k));
+            }
+
+            // Verifica cache para requisições GET
+            if (method === 'GET' && !options.noCache) {
+                const cached = sessionStorage.getItem(cacheKey);
+                if (cached) {
+                    try {
+                        const parsed = JSON.parse(cached);
+                        // Cache duration: 15 seconds
+                        if (Date.now() - parsed.time < 15000) {
+                            return parsed.data;
+                        }
+                    } catch (e) {}
+                }
+            }
+
             const headers = {
                 'Content-Type': 'application/json',
                 ...options.headers
@@ -171,10 +219,54 @@
                 throw new Error(err.detail || "Erro na requisição");
             }
             
-            return response.json();
+            const data = await response.json();
+
+            // Salva no cache
+            if (method === 'GET') {
+                sessionStorage.setItem(cacheKey, JSON.stringify({
+                    time: Date.now(),
+                    data: data
+                }));
+            }
+            
+            return data;
         }
 
         checkAuth();
+
+        // ── Auto Logout por Inatividade (15 minutos) ──
+        (function() {
+            const isLoginPage = window.location.pathname === '/login';
+            if (isLoginPage) return;
+
+            let inatividadeTimer;
+            const TEMPO_LIMITE = 15 * 60 * 1000; // 15 minutos em ms
+
+            function resetTimer() {
+                clearTimeout(inatividadeTimer);
+                inatividadeTimer = setTimeout(deslogarPorInatividade, TEMPO_LIMITE);
+            }
+
+            function deslogarPorInatividade() {
+                localStorage.removeItem('token');
+                Swal.fire({
+                    title: 'Sessão Expirada',
+                    text: 'Você foi desconectado por inatividade para sua segurança.',
+                    icon: 'warning',
+                    timer: 3000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = '/login';
+                });
+            }
+
+            window.addEventListener('mousemove', resetTimer);
+            window.addEventListener('keydown', resetTimer);
+            window.addEventListener('scroll', resetTimer);
+            window.addEventListener('click', resetTimer);
+
+            resetTimer();
+        })();
     </script>
 </head>
 <body class="flex h-screen overflow-hidden">

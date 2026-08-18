@@ -1,21 +1,23 @@
 """Serviço de Dashboard — Consultas agregadas para métricas financeiras."""
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from typing import Dict, Any, List
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func as sa_func, and_, extract
+from sqlalchemy import func as sa_func, and_
 
 from models.emprestimo import Emprestimo
 from models.parcela import Parcela
 from models.cliente import Cliente
 from models.movimentacao import Movimentacao
-from models.recebimento import Recebimento
-
+from services.pagamento_service import PagamentoService
 
 class DashboardService:
 
     def get_metrics(self, db: Session) -> Dict[str, Any]:
         """Retorna todas as métricas para o Dashboard em uma única chamada."""
+        # Garante que os status de atraso estão atualizados para hoje
+        PagamentoService().atualizar_todas_parcelas_pendentes(db)
+        
         hoje = date.today()
         primeiro_dia_mes = hoje.replace(day=1)
         
@@ -80,6 +82,9 @@ class DashboardService:
 
     def get_proximas_parcelas(self, db: Session, limite: int = 10) -> List[Parcela]:
         """Retorna as próximas parcelas a vencer (para a tabela do Dashboard)."""
+        # Garante que os status de atraso estão atualizados para hoje
+        PagamentoService().atualizar_todas_parcelas_pendentes(db)
+        
         return db.query(Parcela).options(
             joinedload(Parcela.emprestimo).joinedload(Emprestimo.cliente)
         ).filter(

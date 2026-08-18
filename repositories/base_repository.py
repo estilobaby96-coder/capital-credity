@@ -21,6 +21,12 @@ class BaseRepository(Generic[ModelType]):
         db.refresh(db_obj)
         return db_obj
 
+    def update_no_commit(self, db_obj: ModelType, obj_in: dict) -> ModelType:
+        """Atualiza atributos sem realizar commit no banco (útil para operações em batch)."""
+        for field, value in obj_in.items():
+            setattr(db_obj, field, value)
+        return db_obj
+
     def update(self, db: Session, db_obj: ModelType, obj_in: dict) -> ModelType:
         for field, value in obj_in.items():
             setattr(db_obj, field, value)
