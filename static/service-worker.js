@@ -1,4 +1,4 @@
-const CACHE_NAME = 'capital-credity-v2';
+const CACHE_NAME = 'capital-credity-v3';
 const urlsToCache = [
   '/',
   '/login',
