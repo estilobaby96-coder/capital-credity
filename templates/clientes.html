@@ -33,11 +33,11 @@
                     <label class="block text-sm mb-1 label-text">Nome Completo</label>
                     <input type="text" id="c_nome" required class="input-field" oninput="this.value=this.value.toUpperCase()">
                 </div>
-                <div>
+                <div class="col-span-2">
                     <label class="block text-sm mb-1 label-text">CPF</label>
                     <input type="text" id="c_cpf" required class="input-field" inputmode="numeric" maxlength="14" oninput="mascaraCPF(this)" placeholder="000.000.000-00">
                 </div>
-                <div>
+                <div class="col-span-2">
                     <label class="block text-sm mb-1 label-text">Telefone</label>
                     <input type="text" id="c_telefone" required class="input-field" inputmode="numeric" oninput="mascaraTelefone(this)" maxlength="15" placeholder="(00) 00000-0000">
                 </div>
@@ -45,7 +45,7 @@
                     <label class="block text-sm mb-1 label-text">E-mail</label>
                     <input type="email" id="c_email" class="input-field" oninput="this.value=this.value.toLowerCase()" placeholder="email@exemplo.com">
                 </div>
-                <div>
+                <div class="col-span-2">
                     <label class="block text-sm mb-1 label-text">CEP</label>
                     <input type="text" id="c_cep" class="input-field" inputmode="numeric" onblur="buscarCEP()" maxlength="9" oninput="mascaraCEP(this)" placeholder="00000-000">
                 </div>
