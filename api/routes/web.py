@@ -43,6 +43,10 @@ def login_page(request: Request):
     return templates.TemplateResponse(request, "login.html", headers=CACHE_HEADERS)
 
 @router.get("/", response_class=HTMLResponse)
+def landing_page(request: Request):
+    return templates.TemplateResponse(request, "landing.html", headers=CACHE_HEADERS)
+
+@router.get("/dashboard", response_class=HTMLResponse)
 def dashboard_page(request: Request):
     return templates.TemplateResponse(request, "dashboard.html", headers=CACHE_HEADERS)
 

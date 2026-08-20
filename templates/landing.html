@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capital Credity - Gestão Financeira Inteligente</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00C853',
+                        'primary-hover': '#00E676',
+                        dark: {
+                            bg: '#1E1E1E',
+                            surface: '#2A2D35',
+                            border: '#32363F'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #1E1E1E; color: #FFFFFF; }
+        .hero-gradient {
+            background: linear-gradient(180deg, rgba(30,30,30,1) 0%, rgba(42,45,53,1) 100%);
+        }
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.15;
+            border-radius: 50%;
+            animation: pulse 8s infinite alternate;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.15; }
+            100% { transform: scale(1.1); opacity: 0.25; }
+        }
+    </style>
+</head>
+<body class="relative overflow-x-hidden min-h-screen hero-gradient">
+
+    <!-- Background Blobs -->
+    <div class="blob bg-primary w-96 h-96 top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="blob bg-green-400 w-96 h-96 bottom-0 right-0 translate-x-1/3 translate-y-1/3"></div>
+
+    <!-- Header -->
+    <header class="relative z-10 w-full px-6 py-4 flex justify-between items-center max-w-7xl mx-auto">
+        <div class="flex items-center gap-3">
+            <img src="/assets/logo/logo.png" alt="Capital Credity Logo" class="h-12 drop-shadow-md">
+            <h1 class="text-xl font-bold tracking-tight text-white hidden sm:block">Capital Credity</h1>
+        </div>
+        <a href="/login" class="bg-primary hover:bg-primary-hover text-white px-6 py-2 rounded-lg font-semibold transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Entrar
+        </a>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="relative z-10 flex flex-col items-center justify-center text-center px-4 pt-20 pb-32 max-w-4xl mx-auto">
+        <div class="inline-block bg-dark-surface border border-dark-border px-4 py-1.5 rounded-full text-sm font-medium text-gray-300 mb-8 shadow-sm">
+            🚀 O Sistema de Gestão Financeira mais inteligente
+        </div>
+        
+        <h2 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-6 leading-tight">
+            Gestão de <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-green-400">Empréstimos</span><br>Feita de Forma Profissional
+        </h2>
+        
+        <p class="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl leading-relaxed">
+            Controle total sobre seus clientes, carteira de empréstimos, recebimentos e inadimplência em uma plataforma segura e acessível de qualquer lugar.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+            <a href="/login" class="bg-primary hover:bg-primary-hover text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl shadow-primary/30 flex justify-center items-center gap-2">
+                Acessar Plataforma <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </main>
+
+    <!-- Features Section -->
+    <section class="relative z-10 max-w-7xl mx-auto px-6 py-16">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-dark-surface border border-dark-border rounded-2xl p-6 hover:border-primary/50 transition-colors shadow-lg">
+                <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-users text-primary text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Gestão de Clientes</h3>
+                <p class="text-gray-400">Cadastre clientes com todos os dados e documentos necessários de forma organizada e segura.</p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="bg-dark-surface border border-dark-border rounded-2xl p-6 hover:border-primary/50 transition-colors shadow-lg">
+                <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-chart-line text-primary text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Controle Financeiro</h3>
+                <p class="text-gray-400">Acompanhe contratos ativos, total investido e juros a receber com relatórios precisos.</p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="bg-dark-surface border border-dark-border rounded-2xl p-6 hover:border-primary/50 transition-colors shadow-lg">
+                <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-shield-halved text-primary text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Segurança Total</h3>
+                <p class="text-gray-400">Seus dados blindados com criptografia de ponta a ponta e backups automáticos na nuvem.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-dark-border mt-16 py-8 text-center text-gray-500 text-sm">
+        <p>&copy; 2026 Capital Credity. Todos os direitos reservados.</p>
+    </footer>
+
+</body>
+</html>
