@@ -17,6 +17,7 @@
                 <th class="text-center">Data</th>
                 <th class="text-center">Valor Solicitado</th>
                 <th class="text-center">Valor Total</th>
+                <th class="text-center">Garantias</th>
                 <th class="text-center">Status</th>
                 <th class="text-center">Ações</th>
             </tr>
@@ -86,8 +87,109 @@
     </div>
 </div>
 
+<!-- ═══════════════ Modal Garantias ═══════════════ -->
+<div id="modalGarantias" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <div class="modal-bg p-4 md:p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold heading-text">
+                🛡️ Garantias — Contrato <span id="garantia_contrato" class="text-green-500"></span>
+            </h2>
+            <button onclick="closeGarantiasModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+        </div>
+
+        <!-- Lista de garantias -->
+        <div id="garantiasLista" class="space-y-3 mb-6">
+            <p class="text-gray-400 text-center py-4" id="garantiasVazio">Nenhuma garantia registrada para este contrato.</p>
+        </div>
+
+        <!-- Formulário para adicionar -->
+        <div class="border-t border-gray-600 pt-4">
+            <h3 class="text-md font-semibold heading-text mb-3">➕ Adicionar Garantia</h3>
+            <form id="formGarantia" onsubmit="salvarGarantia(event)">
+                <input type="hidden" id="g_emprestimo_id" value="">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block text-xs mb-1 label-text">Tipo do Bem</label>
+                        <select id="g_tipo" required class="select-field w-full">
+                            <option value="VEICULO">🚗 Veículo</option>
+                            <option value="IMOVEL">🏠 Imóvel</option>
+                            <option value="EQUIPAMENTO">⚙️ Equipamento</option>
+                            <option value="JOIA">💎 Joia / Ouro</option>
+                            <option value="OUTRO">📦 Outro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs mb-1 label-text">Valor Estimado (R$)</label>
+                        <input type="number" id="g_valor" step="0.01" class="input-field" placeholder="Opcional">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs mb-1 label-text">Descrição do Bem</label>
+                        <input type="text" id="g_descricao" required class="input-field" placeholder="Ex: Fiat Uno 2018, Placa ABC-1234, Cor Prata">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs mb-1 label-text">Observações</label>
+                        <textarea id="g_obs" class="input-field" rows="2" placeholder="Informações adicionais (opcional)"></textarea>
+                    </div>
+                </div>
+                <button type="submit" id="btnSalvarG" class="btn-green px-4 py-2 rounded shadow font-bold w-full">
+                    Registrar Garantia
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ Modal Editar Garantia ═══════════════ -->
+<div id="modalEditarGarantia" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[60] p-4">
+    <div class="modal-bg p-4 md:p-6 rounded-lg shadow-xl w-full max-w-lg max-h-full overflow-y-auto">
+        <h2 class="text-xl font-bold mb-4 heading-text">✏️ Editar Garantia</h2>
+        <form id="formEditarGarantia" onsubmit="atualizarGarantia(event)">
+            <input type="hidden" id="eg_id" value="">
+            <input type="hidden" id="eg_emprestimo_id" value="">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                <div>
+                    <label class="block text-xs mb-1 label-text">Tipo do Bem</label>
+                    <select id="eg_tipo" required class="select-field w-full">
+                        <option value="VEICULO">🚗 Veículo</option>
+                        <option value="IMOVEL">🏠 Imóvel</option>
+                        <option value="EQUIPAMENTO">⚙️ Equipamento</option>
+                        <option value="JOIA">💎 Joia / Ouro</option>
+                        <option value="OUTRO">📦 Outro</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs mb-1 label-text">Valor Estimado (R$)</label>
+                    <input type="number" id="eg_valor" step="0.01" class="input-field">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-xs mb-1 label-text">Descrição do Bem</label>
+                    <input type="text" id="eg_descricao" required class="input-field">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-xs mb-1 label-text">Observações</label>
+                    <textarea id="eg_obs" class="input-field" rows="2"></textarea>
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-xs mb-1 label-text">Status</label>
+                    <select id="eg_status" class="select-field w-full">
+                        <option value="RETIDO">🔒 Retido</option>
+                        <option value="DEVOLVIDO">✅ Devolvido</option>
+                        <option value="EXECUTADO">⚠️ Executado (Tomado)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex flex-col-reverse md:flex-row justify-end gap-3 mt-4">
+                <button type="button" onclick="fecharEditarGarantia()" class="bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded transition w-full md:w-auto">Cancelar</button>
+                <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded shadow font-bold w-full md:w-auto">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    // ── Empréstimos ────────────────────────────────────────────
 
     function openModal() {
         document.getElementById('modalEmprestimo').classList.remove('hidden');
@@ -133,6 +235,32 @@
         }
     }
 
+    function getGarantiaBadge(qtd) {
+        if (qtd === 0) {
+            return `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-gray-700 text-gray-400">Nenhuma</span>`;
+        }
+        return `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-green-900 text-green-300 font-bold cursor-pointer">🛡️ ${qtd}</span>`;
+    }
+
+    function getTipoIcon(tipo) {
+        switch(tipo) {
+            case 'VEICULO': return '🚗';
+            case 'IMOVEL': return '🏠';
+            case 'EQUIPAMENTO': return '⚙️';
+            case 'JOIA': return '💎';
+            default: return '📦';
+        }
+    }
+
+    function getStatusGarantia(status) {
+        switch(status) {
+            case 'RETIDO': return '<span class="text-yellow-400 font-bold text-xs">🔒 Retido</span>';
+            case 'DEVOLVIDO': return '<span class="text-green-400 font-bold text-xs">✅ Devolvido</span>';
+            case 'EXECUTADO': return '<span class="text-red-400 font-bold text-xs">⚠️ Executado</span>';
+            default: return status;
+        }
+    }
+
     async function loadEmprestimos() {
         try {
             const data = await fetchAPI('/emprestimos/');
@@ -150,6 +278,11 @@
                     <td class="text-center">${dataFormatada}</td>
                     <td class="text-center">${formatter.format(e.valor_principal)}</td>
                     <td class="text-center">${formatter.format(e.valor_total)}</td>
+                    <td class="text-center">
+                        <button onclick="abrirGarantias(${e.id}, '${e.numero_contrato}')" class="hover:opacity-80 transition">
+                            ${getGarantiaBadge(e.qtd_garantias)}
+                        </button>
+                    </td>
                     <td class="text-center"><span class="${getStatusClass(e.status)} font-bold">${e.status}</span></td>
                     <td class="flex justify-center gap-2 flex-wrap text-center">
                         ${isAtivo ? `
@@ -223,6 +356,153 @@
                 loadEmprestimos();
             } catch (error) {
                 Swal.fire('Erro', error.message || 'Erro ao cancelar contrato.', 'error');
+            }
+        }
+    }
+
+    // ── Garantias ────────────────────────────────────────────
+
+    let garantiaEmprestimoId = null;
+
+    function abrirGarantias(empId, numContrato) {
+        garantiaEmprestimoId = empId;
+        document.getElementById('g_emprestimo_id').value = empId;
+        document.getElementById('garantia_contrato').textContent = numContrato;
+        document.getElementById('modalGarantias').classList.remove('hidden');
+        document.getElementById('modalGarantias').classList.add('flex');
+        carregarGarantias(empId);
+    }
+
+    function closeGarantiasModal() {
+        document.getElementById('modalGarantias').classList.add('hidden');
+        document.getElementById('modalGarantias').classList.remove('flex');
+        document.getElementById('formGarantia').reset();
+        garantiaEmprestimoId = null;
+    }
+
+    async function carregarGarantias(empId) {
+        try {
+            const garantias = await fetchAPI(`/emprestimos/${empId}/garantias`, { noCache: true });
+            const lista = document.getElementById('garantiasLista');
+            const vazio = document.getElementById('garantiasVazio');
+
+            if (garantias.length === 0) {
+                lista.innerHTML = '';
+                lista.appendChild(vazio);
+                vazio.classList.remove('hidden');
+                return;
+            }
+
+            vazio.classList.add('hidden');
+            lista.innerHTML = garantias.map(g => `
+                <div class="card rounded-lg p-4 border border-gray-600 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-lg">${getTipoIcon(g.tipo)}</span>
+                            <span class="font-bold heading-text">${g.descricao}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-3 text-xs sub-text">
+                            <span>Tipo: <strong>${g.tipo}</strong></span>
+                            ${g.valor_estimado ? `<span>Valor: <strong>${formatter.format(g.valor_estimado)}</strong></span>` : ''}
+                            <span>${getStatusGarantia(g.status)}</span>
+                        </div>
+                        ${g.observacoes ? `<p class="text-xs text-gray-400 mt-1 italic">${g.observacoes}</p>` : ''}
+                    </div>
+                    <div class="flex gap-2 shrink-0">
+                        <button onclick='editarGarantia(${JSON.stringify(g)})' class="text-yellow-500 hover:text-yellow-400 text-sm" title="Editar">✏️</button>
+                        <button onclick="removerGarantia(${g.emprestimo_id}, ${g.id})" class="text-red-500 hover:text-red-400 text-sm" title="Remover">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Erro ao carregar garantias:', error);
+        }
+    }
+
+    async function salvarGarantia(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnSalvarG');
+        btn.disabled = true; btn.innerText = "Salvando...";
+        const empId = document.getElementById('g_emprestimo_id').value;
+        const valorStr = document.getElementById('g_valor').value;
+        const payload = {
+            tipo: document.getElementById('g_tipo').value,
+            descricao: document.getElementById('g_descricao').value,
+            valor_estimado: valorStr ? parseFloat(valorStr) : null,
+            observacoes: document.getElementById('g_obs').value,
+            status: "RETIDO"
+        };
+        try {
+            await fetchAPI(`/emprestimos/${empId}/garantias`, { method: 'POST', body: JSON.stringify(payload) });
+            Swal.fire('Sucesso', 'Garantia registrada com sucesso!', 'success');
+            document.getElementById('formGarantia').reset();
+            document.getElementById('g_emprestimo_id').value = empId;
+            carregarGarantias(empId);
+            loadEmprestimos(); // Atualiza o badge na tabela
+        } catch (error) {
+            Swal.fire('Erro', error.message || 'Erro ao salvar garantia.', 'error');
+        } finally { btn.disabled = false; btn.innerText = "Registrar Garantia"; }
+    }
+
+    function editarGarantia(g) {
+        document.getElementById('eg_id').value = g.id;
+        document.getElementById('eg_emprestimo_id').value = g.emprestimo_id;
+        document.getElementById('eg_tipo').value = g.tipo;
+        document.getElementById('eg_valor').value = g.valor_estimado || '';
+        document.getElementById('eg_descricao').value = g.descricao;
+        document.getElementById('eg_obs').value = g.observacoes || '';
+        document.getElementById('eg_status').value = g.status;
+        document.getElementById('modalEditarGarantia').classList.remove('hidden');
+        document.getElementById('modalEditarGarantia').classList.add('flex');
+    }
+
+    function fecharEditarGarantia() {
+        document.getElementById('modalEditarGarantia').classList.add('hidden');
+        document.getElementById('modalEditarGarantia').classList.remove('flex');
+    }
+
+    async function atualizarGarantia(e) {
+        e.preventDefault();
+        const gId = document.getElementById('eg_id').value;
+        const empId = document.getElementById('eg_emprestimo_id').value;
+        const valorStr = document.getElementById('eg_valor').value;
+        const payload = {
+            tipo: document.getElementById('eg_tipo').value,
+            descricao: document.getElementById('eg_descricao').value,
+            valor_estimado: valorStr ? parseFloat(valorStr) : null,
+            observacoes: document.getElementById('eg_obs').value,
+            status: document.getElementById('eg_status').value
+        };
+        try {
+            await fetchAPI(`/emprestimos/${empId}/garantias/${gId}`, { method: 'PUT', body: JSON.stringify(payload) });
+            Swal.fire('Sucesso', 'Garantia atualizada!', 'success');
+            fecharEditarGarantia();
+            carregarGarantias(empId);
+            loadEmprestimos();
+        } catch (error) {
+            Swal.fire('Erro', error.message || 'Erro ao atualizar garantia.', 'error');
+        }
+    }
+
+    async function removerGarantia(empId, gId) {
+        const result = await Swal.fire({
+            title: 'Remover Garantia?',
+            text: 'Esta ação não pode ser desfeita.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Sim, remover!',
+            cancelButtonText: 'Não'
+        });
+        if (result.isConfirmed) {
+            try {
+                await fetchAPI(`/emprestimos/${empId}/garantias/${gId}`, { method: 'DELETE' });
+                Swal.fire('Removida!', 'Garantia removida com sucesso.', 'success');
+                carregarGarantias(empId);
+                loadEmprestimos();
+            } catch (error) {
+                Swal.fire('Erro', error.message || 'Erro ao remover garantia.', 'error');
             }
         }
     }

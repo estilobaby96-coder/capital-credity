@@ -27,3 +27,4 @@ class Emprestimo(Base):
     cliente = relationship("Cliente", back_populates="emprestimos")
     parcelas = relationship("Parcela", back_populates="emprestimo", cascade="all, delete-orphan")
     renegociacoes = relationship("Renegociacao", back_populates="emprestimo", cascade="all, delete-orphan")
+    garantias = relationship("Garantia", back_populates="emprestimo", cascade="all, delete-orphan")

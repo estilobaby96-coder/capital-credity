@@ -6,6 +6,7 @@ from .parcela import Parcela
 from .recebimento import Recebimento
 from .renegociacao import Renegociacao
 from .movimentacao import Movimentacao
+from .garantia import Garantia
 
 # Isso garante que todos os modelos sejam registrados no Base.metadata
 __all__ = [
@@ -16,5 +17,6 @@ __all__ = [
     "Parcela",
     "Recebimento",
     "Renegociacao",
-    "Movimentacao"
+    "Movimentacao",
+    "Garantia"
 ]

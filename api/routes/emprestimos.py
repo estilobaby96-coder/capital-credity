@@ -32,8 +32,11 @@ def listar_emprestimos(db: Session = Depends(get_session), _user: dict = Depends
             "cliente_nome": e.cliente.nome if e.cliente else "N/A",
             "valor_principal": e.valor_emprestado,
             "valor_total": e.valor_emprestado * (1 + (e.taxa_juros/100)), # Stub aproximado
+            "taxa_juros": e.taxa_juros,
+            "data_vencimento": e.data_vencimento.isoformat() if e.data_vencimento else None,
             "status": e.status,
-            "data_emprestimo": e.criado_em.isoformat() if e.criado_em else None
+            "data_emprestimo": e.criado_em.isoformat() if e.criado_em else None,
+            "qtd_garantias": len(e.garantias) if e.garantias else 0
         }
         for e in emprestimos
     ]
@@ -111,3 +114,78 @@ def cancelar_emprestimo(emprestimo_id: int, db: Session = Depends(get_session), 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# ── Garantias ──────────────────────────────────────────────────
+
+from repositories.garantia_repository import GarantiaRepository
+
+garantia_repo = GarantiaRepository()
+
+class GarantiaCreate(BaseModel):
+    tipo: str  # VEICULO, IMOVEL, EQUIPAMENTO, JOIA, OUTRO
+    descricao: str
+    valor_estimado: Optional[float] = None
+    observacoes: Optional[str] = ""
+    status: Optional[str] = "RETIDO"
+
+class GarantiaUpdate(BaseModel):
+    tipo: Optional[str] = None
+    descricao: Optional[str] = None
+    valor_estimado: Optional[float] = None
+    observacoes: Optional[str] = None
+    status: Optional[str] = None
+
+@router.get("/{emprestimo_id}/garantias")
+def listar_garantias(emprestimo_id: int, db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
+    garantias = garantia_repo.get_by_emprestimo(db, emprestimo_id)
+    return [
+        {
+            "id": g.id,
+            "emprestimo_id": g.emprestimo_id,
+            "tipo": g.tipo,
+            "descricao": g.descricao,
+            "valor_estimado": g.valor_estimado,
+            "observacoes": g.observacoes,
+            "status": g.status,
+            "criado_em": g.criado_em.isoformat() if g.criado_em else None
+        }
+        for g in garantias
+    ]
+
+@router.post("/{emprestimo_id}/garantias")
+def criar_garantia(emprestimo_id: int, garantia: GarantiaCreate, db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
+    # Verifica se o empréstimo existe
+    emprestimo = emprestimo_service.get_by_id(db, emprestimo_id)
+    if not emprestimo:
+        raise HTTPException(status_code=404, detail="Empréstimo não encontrado.")
+    try:
+        nova = garantia_repo.create(db, {
+            "emprestimo_id": emprestimo_id,
+            "tipo": garantia.tipo,
+            "descricao": garantia.descricao,
+            "valor_estimado": garantia.valor_estimado,
+            "observacoes": garantia.observacoes,
+            "status": garantia.status or "RETIDO"
+        })
+        return {"id": nova.id, "tipo": nova.tipo, "descricao": nova.descricao}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.put("/{emprestimo_id}/garantias/{garantia_id}")
+def atualizar_garantia(emprestimo_id: int, garantia_id: int, dados: GarantiaUpdate, db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
+    garantia = garantia_repo.get(db, garantia_id)
+    if not garantia or garantia.emprestimo_id != emprestimo_id:
+        raise HTTPException(status_code=404, detail="Garantia não encontrada.")
+    update_data = {k: v for k, v in dados.dict().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="Nenhum dado para atualizar.")
+    atualizada = garantia_repo.update(db, garantia, update_data)
+    return {"id": atualizada.id, "tipo": atualizada.tipo, "descricao": atualizada.descricao, "status": atualizada.status}
+
+@router.delete("/{emprestimo_id}/garantias/{garantia_id}")
+def remover_garantia(emprestimo_id: int, garantia_id: int, db: Session = Depends(get_session), _user: dict = Depends(get_current_user)):
+    garantia = garantia_repo.get(db, garantia_id)
+    if not garantia or garantia.emprestimo_id != emprestimo_id:
+        raise HTTPException(status_code=404, detail="Garantia não encontrada.")
+    garantia_repo.delete(db, garantia_id)
+    return {"ok": True, "message": "Garantia removida com sucesso."}
