@@ -166,6 +166,17 @@
 
         async function fetchAPI(endpoint, options = {}) {
             const token = localStorage.getItem('token');
+            const lastActivity = parseInt(localStorage.getItem('last_activity') || '0', 10);
+            const isLoginPage = window.location.pathname === '/login' || window.location.pathname === '/';
+
+            // Desloga se a última atividade foi há mais de 15 minutos (900.000 ms)
+            if (!isLoginPage && token && lastActivity > 0 && (Date.now() - lastActivity >= 15 * 60 * 1000)) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('last_activity');
+                window.location.href = '/login';
+                throw new Error("Sessão expirada por 15 minutos de inatividade");
+            }
+
             const method = options.method || 'GET';
             const cacheKey = 'api_cache_' + endpoint;
 
@@ -236,36 +247,76 @@
 
         // ── Auto Logout por Inatividade (15 minutos) ──
         (function() {
-            const isLoginPage = window.location.pathname === '/login';
+            const isLoginPage = window.location.pathname === '/login' || window.location.pathname === '/';
             if (isLoginPage) return;
 
-            let inatividadeTimer;
-            const TEMPO_LIMITE = 15 * 60 * 1000; // 15 minutos em ms
+            const TEMPO_LIMITE_MS = 15 * 60 * 1000; // 15 minutos em milissegundos
+            let deslogando = false;
 
-            function resetTimer() {
-                clearTimeout(inatividadeTimer);
-                inatividadeTimer = setTimeout(deslogarPorInatividade, TEMPO_LIMITE);
+            function atualizarUltimaAtividade() {
+                localStorage.setItem('last_activity', Date.now().toString());
+            }
+
+            function checarInatividade() {
+                if (deslogando) return;
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                const lastActivity = parseInt(localStorage.getItem('last_activity') || '0', 10);
+                if (lastActivity > 0 && (Date.now() - lastActivity >= TEMPO_LIMITE_MS)) {
+                    deslogarPorInatividade();
+                }
             }
 
             function deslogarPorInatividade() {
+                if (deslogando) return;
+                deslogando = true;
                 localStorage.removeItem('token');
+                localStorage.removeItem('last_activity');
                 Swal.fire({
                     title: 'Sessão Expirada',
-                    text: 'Você foi desconectado por inatividade para sua segurança.',
+                    text: 'Você foi desconectado automaticamente por 15 minutos de inatividade.',
                     icon: 'warning',
-                    timer: 3000,
+                    timer: 3500,
                     showConfirmButton: false
                 }).then(() => {
                     window.location.href = '/login';
                 });
             }
 
-            window.addEventListener('mousemove', resetTimer);
-            window.addEventListener('keydown', resetTimer);
-            window.addEventListener('scroll', resetTimer);
-            window.addEventListener('click', resetTimer);
+            // Inicializa timestamp de atividade
+            if (!localStorage.getItem('last_activity')) {
+                atualizarUltimaAtividade();
+            }
 
-            resetTimer();
+            // Throttle para atualizar timestamp sem gargalo de performance
+            let updateTimeout;
+            function registrarAtividade() {
+                if (updateTimeout) return;
+                updateTimeout = setTimeout(() => {
+                    atualizarUltimaAtividade();
+                    updateTimeout = null;
+                }, 2000);
+            }
+
+            // Monitora todos os eventos de navegação e toque (Desktop & Mobile / Android App)
+            ['mousemove', 'mousedown', 'keydown', 'touchstart', 'touchmove', 'scroll', 'click', 'pointerdown'].forEach(evt => {
+                window.addEventListener(evt, registrarAtividade, { passive: true });
+            });
+
+            // Verificação periódica a cada 10 segundos
+            setInterval(checarInatividade, 10000);
+
+            // Verificação imediata ao retornar para a página/app
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    checarInatividade();
+                }
+            });
+            window.addEventListener('focus', checarInatividade);
+
+            // Verifica inatividade imediatamente na abertura da página
+            checarInatividade();
         })();
     </script>
 </head>

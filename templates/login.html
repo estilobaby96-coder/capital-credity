@@ -58,6 +58,7 @@
             
             if (res.ok) {
                 localStorage.setItem('token', data.access_token);
+                localStorage.setItem('last_activity', Date.now().toString());
                 sessionStorage.setItem('justLoggedIn', 'true');
                 window.location.href = '/dashboard';
             } else {
