@@ -81,7 +81,25 @@ class EmprestimoFormView(ctk.CTkToplevel):
         self.entry_vencimento = DateEntry(top_frame, width=18, background='darkblue', foreground='white', borderwidth=2, date_pattern='dd/mm/yyyy', font=('Arial', 12))
         self.entry_vencimento.grid(row=4, column=1, columnspan=3, sticky="w", pady=5)
 
-        # 4. (Garantias removidas a pedido do cliente)
+        # 4. Modalidade de Pagamento
+        ctk.CTkLabel(top_frame, text="Modalidade *").grid(row=5, column=0, sticky="w", padx=15, pady=5)
+        self.combo_modalidade = ctk.CTkComboBox(
+            top_frame, width=200,
+            values=["MENSAL", "SEMANAL", "QUINZENAL"],
+            state="readonly"
+        )
+        self.combo_modalidade.set("MENSAL")
+        self.combo_modalidade.grid(row=5, column=1, columnspan=3, sticky="w", pady=5)
+
+        # Descrição dinâmica da modalidade
+        self.lbl_modalidade_desc = ctk.CTkLabel(
+            top_frame, text="1 parcela única com opção de rolagem de juros",
+            font=ctk.CTkFont(size=11), text_color="gray"
+        )
+        self.lbl_modalidade_desc.grid(row=6, column=1, columnspan=3, sticky="w", pady=(0, 5))
+        self.combo_modalidade.configure(command=self._on_modalidade_changed)
+
+        # 5. (Garantias removidas a pedido do cliente)
 
         # Botão Simular
         self.btn_simular = ctk.CTkButton(top_frame, text="Simular Parcelas", command=self._on_simular_click)
@@ -142,6 +160,20 @@ class EmprestimoFormView(ctk.CTkToplevel):
         except Exception:
             pass
 
+    def _on_modalidade_changed(self, valor):
+        """Atualiza a descrição ao trocar a modalidade."""
+        descs = {
+            "MENSAL": "1 parcela única com opção de rolagem de juros",
+            "SEMANAL": "4 parcelas semanais (a cada 7 dias)",
+            "QUINZENAL": "2 parcelas quinzenais (a cada 15 dias)"
+        }
+        self.lbl_modalidade_desc.configure(text=descs.get(valor, ""))
+        # Limpar simulação anterior ao trocar modalidade
+        self.parcelas_simuladas = []
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        self.btn_salvar.configure(state="disabled")
+
     def _get_form_data(self):
         try:
             cliente_str = self.combo_cliente.get()
@@ -150,11 +182,12 @@ class EmprestimoFormView(ctk.CTkToplevel):
             taxa = float(self.entry_taxa.get().replace(",", "."))
             
             data_vencimento = self.entry_vencimento.get_date()
+            modalidade = self.combo_modalidade.get()
             
             tipo_garantia = "SEM_GARANTIA"
             garantia_desc = ""
             promissoria = "NAO_EXIGIDA"
-            return cliente_id, valor, taxa, data_vencimento, tipo_garantia, garantia_desc, promissoria
+            return cliente_id, valor, taxa, data_vencimento, tipo_garantia, garantia_desc, promissoria, modalidade
         except Exception:
             messagebox.showwarning("Aviso", "Preencha todos os campos obrigatórios corretamente (especialmente a data no formato DD/MM/AAAA).")
             return None
@@ -164,8 +197,8 @@ class EmprestimoFormView(ctk.CTkToplevel):
         if not data:
             return
             
-        _, valor, taxa, data_vencimento, _, _, _ = data
-        self.parcelas_simuladas = self.service.simulate_installments(valor, taxa, data_vencimento)
+        _, valor, taxa, data_vencimento, _, _, _, modalidade = data
+        self.parcelas_simuladas = self.service.simulate_installments(valor, taxa, data_vencimento, modalidade)
         
         # Limpar grid
         for item in self.tree.get_children():
@@ -188,14 +221,15 @@ class EmprestimoFormView(ctk.CTkToplevel):
         if not data:
             return
             
-        cliente_id, valor, taxa, data_vencimento, tipo_garantia, garantia_desc, promissoria = data
+        cliente_id, valor, taxa, data_vencimento, tipo_garantia, garantia_desc, promissoria, modalidade = data
         
         db = SessionLocal()
         try:
             self.service.create_loan(
                 db, cliente_id, valor, taxa, data_vencimento,
                 tipo_garantia=tipo_garantia,
-                garantia_desc=garantia_desc, promissoria_status=promissoria
+                garantia_desc=garantia_desc, promissoria_status=promissoria,
+                modalidade=modalidade
             )
             messagebox.showinfo("Sucesso", "Empréstimo registrado com sucesso!")
             self.on_save_callback()

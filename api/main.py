@@ -20,7 +20,7 @@ app.add_middleware(
 
 # Rota raiz removida para que o web.router (Jinja2) assuma o controle
 
-from api.routes import clientes, emprestimos, pagamentos, dashboard, auth, web, relatorios
+from api.routes import clientes, emprestimos, pagamentos, dashboard, auth, web, relatorios, usuarios
 from fastapi.staticfiles import StaticFiles
 
 # Servir os arquivos de imagem/ícones nativos do app como estáticos
@@ -41,3 +41,4 @@ app.include_router(emprestimos.router)
 app.include_router(pagamentos.router)
 app.include_router(dashboard.router)
 app.include_router(relatorios.router)
+app.include_router(usuarios.router)

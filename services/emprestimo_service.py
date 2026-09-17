@@ -14,19 +14,56 @@ class EmprestimoService:
         self.parcela_repo = ParcelaRepository()
 
     def simulate_installments(self, valor_principal: float, taxa_juros_percentual: float,
-                              data_vencimento: date) -> List[Dict[str, Any]]:
+                              data_vencimento: date, modalidade: str = "MENSAL") -> List[Dict[str, Any]]:
         taxa = taxa_juros_percentual / 100.0
         
-        juros = round(valor_principal * taxa, 2)
-        valor_total = round(valor_principal + juros, 2)
+        juros_total = round(valor_principal * taxa, 2)
+        valor_total = round(valor_principal + juros_total, 2)
 
-        parcelas = [{
-            "numero": 1,
-            "data_vencimento": data_vencimento,
-            "capital": valor_principal,
-            "juros": juros,
-            "valor_atualizado": valor_total,
-        }]
+        parcelas = []
+        if modalidade == "SEMANAL":
+            qtd_parcelas = 4
+            delta_dias = 7
+        elif modalidade == "QUINZENAL":
+            qtd_parcelas = 2
+            delta_dias = 15
+        else:
+            qtd_parcelas = 1
+            delta_dias = 0
+
+        capital_base = round(valor_principal / qtd_parcelas, 2)
+        juros_base = round(juros_total / qtd_parcelas, 2)
+        
+        # Ajuste de centavos na última parcela
+        capital_acumulado = 0.0
+        juros_acumulado = 0.0
+
+        from datetime import timedelta
+        data_atual = data_vencimento
+        
+        for i in range(1, qtd_parcelas + 1):
+            if i == qtd_parcelas:
+                cap_parcela = round(valor_principal - capital_acumulado, 2)
+                jur_parcela = round(juros_total - juros_acumulado, 2)
+            else:
+                cap_parcela = capital_base
+                jur_parcela = juros_base
+            
+            capital_acumulado += cap_parcela
+            juros_acumulado += jur_parcela
+            
+            valor_parcela = round(cap_parcela + jur_parcela, 2)
+
+            parcelas.append({
+                "numero": i,
+                "data_vencimento": data_atual,
+                "capital": cap_parcela,
+                "juros": jur_parcela,
+                "valor_atualizado": valor_parcela,
+            })
+            
+            if delta_dias > 0:
+                data_atual += timedelta(days=delta_dias)
 
         return parcelas
 
@@ -34,7 +71,7 @@ class EmprestimoService:
                     taxa_juros: float, data_vencimento: date, 
                     tipo_garantia: str = "SEM_GARANTIA",
                     garantia_desc: str = "", promissoria_status: str = "NAO_EXIGIDA",
-                    fiador: str = "", observacoes: str = "") -> Emprestimo:
+                    fiador: str = "", observacoes: str = "", modalidade: str = "MENSAL") -> Emprestimo:
         
         # ── 1. Validações de Segurança e Score ──────────────────
         from services.cliente_service import ClienteService
@@ -49,19 +86,7 @@ class EmprestimoService:
                 f"Regularize as pendências anteriores antes de conceder um novo empréstimo."
             )
 
-        # Validação 2: Limite do Nível (Score) - REMOVIDO a pedido do usuário
-        # if valor_solicitado > metrics["limite_disponivel"]:
-        #     lim_fmt = f"R$ {metrics['limite_disponivel']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        #     max_fmt = f"R$ {metrics['limite_max']:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        #     sol_fmt = f"R$ {valor_solicitado:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        #     nivel = metrics['nivel']
-        #     raise ValueError(
-        #         f"LIMITE EXCEDIDO! Cliente nível '{nivel}' possui limite máximo de {max_fmt}.\n"
-        #         f"Saldo limite disponível para novo empréstimo: {lim_fmt}.\n"
-        #         f"Valor solicitado: {sol_fmt}."
-        #     )
-
-        parcelas_simuladas = self.simulate_installments(valor_solicitado, taxa_juros, data_vencimento)
+        parcelas_simuladas = self.simulate_installments(valor_solicitado, taxa_juros, data_vencimento, modalidade)
 
         # Gerar número do contrato sequencial (001/2026)
         numero_contrato = self.emprestimo_repo.gerar_numero_contrato(db)
@@ -78,7 +103,8 @@ class EmprestimoService:
             "promissoria_status": promissoria_status,
             "fiador": fiador,
             "observacoes": observacoes,
-            "status": "ATIVO"
+            "status": "ATIVO",
+            "modalidade": modalidade
         }
 
         emprestimo = self.emprestimo_repo.create(db, emprestimo_data)

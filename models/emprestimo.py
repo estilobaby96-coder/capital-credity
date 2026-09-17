@@ -19,6 +19,7 @@ class Emprestimo(Base):
     fiador = Column(String(150))
     observacoes = Column(Text)
     status = Column(String(50), nullable=False, default="ATIVO") # ATIVO, QUITADO, RENEGOCIADO, CANCELADO
+    modalidade = Column(String(50), nullable=False, default="MENSAL") # MENSAL, SEMANAL, QUINZENAL
     
     criado_em = Column(DateTime(timezone=True), server_default=func.now())
     atualizado_em = Column(DateTime(timezone=True), onupdate=func.now())

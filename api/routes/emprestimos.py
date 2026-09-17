@@ -17,6 +17,7 @@ class EmprestimoCreate(BaseModel):
     promissoria_status: Optional[str] = "NAO_EXIGIDA"
     fiador: Optional[str] = ""
     observacoes: Optional[str] = ""
+    modalidade: Optional[str] = "MENSAL"
 
 router = APIRouter(prefix="/emprestimos", tags=["Empréstimos"])
 emprestimo_service = EmprestimoService()
@@ -31,10 +32,11 @@ def listar_emprestimos(db: Session = Depends(get_session), _user: dict = Depends
             "cliente_id": e.cliente_id,
             "cliente_nome": e.cliente.nome if e.cliente else "N/A",
             "valor_principal": e.valor_emprestado,
-            "valor_total": e.valor_emprestado * (1 + (e.taxa_juros/100)), # Stub aproximado
+            "valor_total": e.valor_emprestado * (1 + (e.taxa_juros/100)),
             "taxa_juros": e.taxa_juros,
             "data_vencimento": e.data_vencimento.isoformat() if e.data_vencimento else None,
             "status": e.status,
+            "modalidade": e.modalidade if hasattr(e, 'modalidade') else "MENSAL",
             "data_emprestimo": e.criado_em.isoformat() if e.criado_em else None,
             "qtd_garantias": len(e.garantias) if e.garantias else 0
         }
@@ -54,7 +56,8 @@ def criar_emprestimo(emprestimo: EmprestimoCreate, db: Session = Depends(get_ses
             garantia_desc=emprestimo.garantia_desc,
             promissoria_status=emprestimo.promissoria_status,
             fiador=emprestimo.fiador,
-            observacoes=emprestimo.observacoes
+            observacoes=emprestimo.observacoes,
+            modalidade=emprestimo.modalidade
         )
         return {"id": novo.id, "numero_contrato": novo.numero_contrato, "status": novo.status}
     except ValueError as e:

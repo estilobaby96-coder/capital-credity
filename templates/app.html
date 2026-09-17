@@ -26,17 +26,24 @@
             </button>
         </div>
         
-        <nav class="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
+        <nav class="flex-1 px-4 space-y-2 mt-4 overflow-y-auto w-full max-w-full">
             <a href="/dashboard" class="btn-green rounded px-4 py-2 text-center w-full block shadow transition">Dashboard</a>
             <a href="/clientes" class="btn-green rounded px-4 py-2 text-center w-full block shadow transition">Clientes</a>
             <a href="/emprestimos" class="btn-green rounded px-4 py-2 text-center w-full block shadow transition">Empréstimos</a>
             <a href="/recebimentos" class="btn-green rounded px-4 py-2 text-center w-full block shadow transition">Recebimentos</a>
             <a href="/relatorios" class="btn-green rounded px-4 py-2 text-center w-full block shadow transition">Relatórios</a>
+            <a href="/operadores" class="btn-green rounded px-4 py-2 text-center w-full block shadow transition">Operadores</a>
         </nav>
 
         <!-- Theme Toggle + Logout -->
         <div class="w-full px-4 mt-auto flex flex-col gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <div class="flex items-center justify-between px-2">
+            <!-- Informação do Usuário -->
+            <div class="flex items-center justify-center text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded py-2 shadow-sm">
+                <i class="fa-solid fa-user-circle mr-2 text-lg text-blue-500"></i>
+                <span id="sidebarUserName">Operador</span>
+            </div>
+
+            <div class="flex items-center justify-between px-2 mt-2">
                 <span class="text-sm label-text">Tema</span>
                 <div id="themeToggle" class="theme-toggle light" onclick="toggleTheme()">
                     <div class="toggle-knob">☀️</div>
@@ -78,6 +85,12 @@
     document.addEventListener('DOMContentLoaded', function() {
         const isDark = document.documentElement.classList.contains('dark');
         updateToggleButton(isDark);
+
+        const userName = localStorage.getItem('user_nome');
+        if (userName) {
+            const nameEl = document.getElementById('sidebarUserName');
+            if(nameEl) nameEl.textContent = userName;
+        }
     });
 
     // Função para abrir/fechar o menu no mobile

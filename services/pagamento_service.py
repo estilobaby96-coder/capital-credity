@@ -118,6 +118,12 @@ class PagamentoService:
 
         elif abs(valor_pago - parcela.juros) <= tolerancia:
             # ROLAGEM — pagou só os juros
+            if parcela.emprestimo and parcela.emprestimo.modalidade != "MENSAL":
+                raise ValueError(
+                    f"Pagamento inválido! Na modalidade {parcela.emprestimo.modalidade} não é permitida a rolagem de juros.\n"
+                    f"Você deve pagar o TOTAL da parcela (R$ {parcela.valor_atualizado:.2f})."
+                )
+
             tipo_pagamento = "JUROS (ROLAGEM)"
             
             # A parcela volta ao valor cheio (capital + juros) e rola 1 mês

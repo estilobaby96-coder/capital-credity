@@ -65,3 +65,7 @@ def recebimentos_page(request: Request):
 @router.get("/relatorios", response_class=HTMLResponse)
 def relatorios_page(request: Request):
     return templates.TemplateResponse(request, "relatorios.html", headers=CACHE_HEADERS)
+
+@router.get("/operadores", response_class=HTMLResponse)
+def operadores_page(request: Request):
+    return templates.TemplateResponse(request, "operadores.html", headers=CACHE_HEADERS)

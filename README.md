@@ -23,5 +23,7 @@ Software comercial de nível profissional para gerenciamento de empréstimos par
 3. Instale as dependências: `pip install -r requirements.txt`
 4. Execute o sistema: `python launcher.py`
 
-## Arquitetura
-Consulte `docs/arquitetura.md` para entender as convenções e a estrutura do projeto.
+## Documentação e Arquitetura
+Consulte os arquivos na pasta `docs/` para entender as convenções e a estrutura do projeto:
+- `docs/arquitetura.md` — Arquitetura técnica e estrutural do projeto.
+- `docs/regras_de_negocio.md` — Bíblia Operacional: regras de crédito, limites, modalidades de parcelamento (Mensal, Semanal, Quinzenal), multas e lógicas financeiras.
