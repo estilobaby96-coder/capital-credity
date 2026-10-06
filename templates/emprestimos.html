@@ -277,6 +277,8 @@
             tbody.innerHTML = '';
             
             data.forEach(e => {
+                if (e.status !== 'ATIVO') return;
+                
                 const tr = document.createElement('tr');
                 const dataFormatada = new Date(e.data_emprestimo).toLocaleDateString('pt-BR');
                 const isAtivo = e.status === 'ATIVO';
